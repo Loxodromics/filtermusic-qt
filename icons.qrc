@@ -1,0 +1,16 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/icons/button_next.png</file>
+        <file>resources/icons/button_pause.png</file>
+        <file>resources/icons/button_play_highlight.png</file>
+        <file>resources/icons/button_play.png</file>
+        <file>resources/icons/button_prev.png</file>
+        <file>resources/icons/StationPlaceholder.png</file>
+        <file>resources/icons/timer_icon.png</file>
+        <file>resources/icons/volmue_up.png</file>
+        <file>resources/icons/volume_down.png</file>
+        <file>resources/icons/chevron_down.png</file>
+        <file>resources/icons/no_station.png</file>
+        <file>resources/images/filtermusic-logo-medium.png</file>
+    </qresource>
+</RCC>

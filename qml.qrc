@@ -1,0 +1,20 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qtquickcontrols2.conf</file>
+        <file>sources/qml/main.qml</file>
+        <file>sources/qml/CategoryDelegate.qml</file>
+        <file>sources/qml/CategoriesListView.qml</file>
+        <file>sources/qml/StationsListView.qml</file>
+        <file>sources/javascript/UiConstants.js</file>
+        <file>sources/qml/PlayerView.qml</file>
+        <file>sources/qml/IconButton.qml</file>
+        <file>sources/qml/PlayButton.qml</file>
+        <file>sources/qml/MiniPlayerView.qml</file>
+        <file>sources/qml/AboutView.qml</file>
+        <file>sources/qml/LfdTabButton.qml</file>
+        <file>sources/qml/FavoritesView.qml</file>
+        <file>sources/qml/NoFavoritesView.qml</file>
+        <file>sources/qml/NoRecentView.qml</file>
+        <file>sources/qml/RecentView.qml</file>
+    </qresource>
+</RCC>

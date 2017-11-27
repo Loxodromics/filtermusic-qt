@@ -1,0 +1,35 @@
+{
+    "version": "0.1",
+    "active": "true",
+    "urls": {
+        "stations_feed": "https://filtermusic.net/json_radios",
+        "categories_feed": "https://filtermusic.net/json_categories"
+    },
+
+    "strings": {
+        "AboutView": {
+            "visitUs": "Visit us at:",
+            "visitUsLink": "filtermusic.net",
+            "visitUsLinkUrl": "https://filtermusic.net",
+            "contactText": "Contact:",
+            "contactLink": "info@filtermusic.net",
+            "contactLinkUrl": "mailto:?to=info@filtermusic.net&subject=Feedback to filtermusic app",
+            "aboutText": "Filtermusic is updated with radio stations that stream in high quality (128Kbps and higher) and play only music; you won't find a radio here where people having lenghty discussions. All streams presented have been filtered especially for electronic & dance music from thousands of stations all over the Internet."
+        },
+        "CategoriesListView": {
+            "categorySubtext": " Stations"
+        },
+        "NoFavoritesView": {
+            "noFavorites": "No favorites yet.\n\nUse the ☆ button in the player to add stations here."
+        },
+        "NoRecentView": {
+            "noRecents": "No recent stations yet.\n\nListen to some stations and they will appear here."
+        },
+        "main": {
+            "categoriesButton": "Categories",
+            "favoritesButton": "Favorites",
+            "recentButton": "Recent",
+            "aboutButton": "About"
+        }
+    }
+}

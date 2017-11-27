@@ -1,0 +1,4 @@
+[submodule "thirdparty/LFDMobileAudioPlayer"]
+	path = thirdparty/LFDMobileAudioPlayer
+	url = https://github.com/Loxodromics/LFDMobileAudioPlayer.git
+	branch = master
