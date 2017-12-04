@@ -92,6 +92,7 @@ Item {
                     id: categoryMouseArea
 
                     anchors.fill: parent
+//                    enabled: reachable /// I'm undecided about this
 
                     onClicked: {
                         console.log("onClicked")
@@ -100,6 +101,26 @@ Item {
                         RadioStationManager.setStation(uid)
                         AudioPlayer.play()
                     }
+                }
+
+                Rectangle {
+                    id: overlayRect
+
+                    color: "#66000000"
+                    anchors.fill: parent
+                    visible: !reachable
+                }
+
+                Image {
+                    id: offlineIndicator
+                    width: UI.STATION_ICON_WIDTH
+                    height: UI.STATION_ICON_HEIGHT
+                    fillMode: Image.PreserveAspectFit
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.left: parent.left
+                    anchors.leftMargin: UI.PADDING_NORMAL
+                    source: "qrc:/resources/icons/disconnected.png"
+                    visible: !reachable
                 }
 
                 PropertyAnimation {

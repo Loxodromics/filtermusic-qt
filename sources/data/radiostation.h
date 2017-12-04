@@ -54,6 +54,12 @@ public:
 	///
 	QString toString();
 
+	bool reachable() const;
+	void setReachable(bool reachable);
+
+	const QDateTime reachableQueried() const;
+	void setReachableQueried(const QDateTime reachableQueried);
+
 protected:
 	const QString m_name;
 	const QString m_longDescription;
@@ -65,6 +71,8 @@ protected:
 	const QString m_uid;
 	bool m_liked;
 	QDateTime m_lastPlayed;
+	bool m_reachable;
+	QDateTime m_reachableQueried;
 };
 
 } /// namespace filtermusic

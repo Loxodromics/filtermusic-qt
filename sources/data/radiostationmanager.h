@@ -86,6 +86,8 @@ public slots:
 	void nextStation();
 	void previousStation();
 	void setLiked(bool liked);
+	void stationReachable(QString urlString, bool reachable);
+	void querryReachability();
 
 signals:
 	void stationNameChanged(QString stationName);
@@ -95,6 +97,7 @@ signals:
 	void currentAudioMediaChanged(LFD::AudioMedia* audioMedia);
 	void titleChanged(QString title);
 	void likedChanged(bool liked);
+	void radioStationsChanged();
 
 protected:
 	QMap<QString, RadioStation*> m_radioStations;
@@ -108,6 +111,8 @@ protected:
 	LFD::AudioMedia* m_currentAudioMedia;
 	QString m_title;
 	bool m_liked;
+
+
 
 private:
 	RadioStationManager(QObject* parent = 0);

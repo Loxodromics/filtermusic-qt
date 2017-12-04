@@ -11,6 +11,7 @@
 #include <QJsonObject>
 #include <QUrlQuery>
 #include "networkaccessmanager.h"
+#include "addresspinger.h"
 #include "sources/commons/constants.h"
 #include "sources/data/radiostationmanager.h"
 #include "sources/data/persistancemanager.h"
@@ -163,6 +164,44 @@ void NetworkAccessManager::handleFetchRadioGenres()
 	PersistanceManager::getInstance().signalCategoriesChanged();
 
 	reply->deleteLater();
+}
+
+void NetworkAccessManager::pingUrl( const QString urlString )
+{
+	qDebug() << "NetworkAccessManager::pingUrl";
+	AddressPinger* addressPinger = new AddressPinger( QUrl(urlString) );
+
+//	connect( addressPinger, SIGNAL(addressReached(QString, bool)),
+//			 this, SLOT(handleAddressPinger(QString, bool)) );
+	connect( addressPinger, SIGNAL(finished()),
+			 this, SLOT(handleAddressPinger2()) );
+
+	addressPinger->start(QThread::LowPriority);
+//	addressPinger->run();
+//	QTimer::singleShot(10, addressPinger, SLOT(go()));
+
+}
+
+void NetworkAccessManager::handleAddressPinger(QString urlString, bool reached)
+{
+//	never called
+	AddressPinger* addressPinger = (AddressPinger*)sender();
+
+	if ( !reached )
+		emit urlReached(urlString, reached);
+
+	emit urlReached(urlString, false);
+
+	//	addressPinger->deleteLater();
+}
+
+void NetworkAccessManager::handleAddressPinger2()
+{
+	AddressPinger* addressPinger = (AddressPinger*)sender();
+//	qDebug() << "handleAddressPinger2" << addressPinger->didConnect();
+
+	RadioStationManager::getInstance().stationReachable( addressPinger->url().toString(), addressPinger->didConnect() );
+	emit urlReached( addressPinger->url().toString(), addressPinger->didConnect() );
 }
 
 } /// namespace filtermusic

@@ -38,6 +38,7 @@ const QByteArray	HEADER_CUSTOM_USER_AGENT		= QByteArray("X-Custom-User-Agent");
 const QByteArray	HEADER_USER_AGENT				= QByteArray("User-Agent");
 const QString		URL_STATIONS_FEED				= QString("https://filtermusic.net/json_radios");
 const QString		URL_GENRES_FEED					= QString("https://filtermusic.net/json_categories");
+const qint32		PING_WAIT_TIME					= 5000;
 
 /// JSON parsing
 const QString		GENRE_KEY_ID					= QString("id");
@@ -56,6 +57,8 @@ const QString		STATION_KEY_TYPE				= QString("type");
 const QString		STATION_KEY_URL					= QString("server");
 
 const QString		DATABASE_FILENAME				= QString("cacheddata.sq3");
+
+const qint32		QUERY_TIME_REACHABILITY			= 1800;
 
 } /// namespace filtermusic
 

@@ -103,6 +103,9 @@ int main(int argc, char *argv[])
 	QTime time = QTime::currentTime();
 	qsrand((uint)time.msec());
 
+	/// for Android back button
+	bool isAndroid = false;
+
 	filtermusic::PersistanceManager::getInstance().setResourcePath( determineResourcePath( &engine ) );
 
 	engine.rootContext()->setContextProperty( QStringLiteral("NetworkAccessManager"),
@@ -116,6 +119,8 @@ int main(int argc, char *argv[])
 											 &radioGenreModel);
 	QObject::connect( &filtermusic::PersistanceManager::getInstance(), SIGNAL(categoriesChanged()),
 					  &radioGenreModel, SLOT(update()) );
+//	QObject::connect( &filtermusic::RadioStationManager::getInstance(), SIGNAL(radioStationsChanged()),
+//					  &radioGenreModel, SLOT(update()) );
 
 	filtermusic::RadioStationModel radioStationModel;
 	radioStationModel.setType(filtermusic::RadioStationModel::CategoryType);
@@ -123,12 +128,18 @@ int main(int argc, char *argv[])
 											 &radioStationModel);
 	QObject::connect( &filtermusic::PersistanceManager::getInstance(), SIGNAL(radioStationsChanged()),
 					  &radioStationModel, SLOT(update()) );
+	QObject::connect( &filtermusic::RadioStationManager::getInstance(), SIGNAL(radioStationsChanged()),
+					  &radioStationModel, SLOT(update()) );
+	QObject::connect( &filtermusic::NetworkAccessManager::getInstance(), SIGNAL(urlReached(QString,bool)),
+					  &radioStationModel, SLOT(deferredUpdate()) );
 
 	filtermusic::RadioStationModel favoritesStationModel;
 	favoritesStationModel.setType(filtermusic::RadioStationModel::FavoritesType);
 	engine.rootContext()->setContextProperty(QStringLiteral("favoritesStationModel"),
 											 &favoritesStationModel);
 	QObject::connect( &filtermusic::PersistanceManager::getInstance(), SIGNAL(radioStationsChanged()),
+					  &favoritesStationModel, SLOT(update()) );
+	QObject::connect( &filtermusic::RadioStationManager::getInstance(), SIGNAL(radioStationsChanged()),
 					  &favoritesStationModel, SLOT(update()) );
 	QObject::connect( &filtermusic::RadioStationManager::getInstance(), SIGNAL(likedChanged(bool)),
 					  &favoritesStationModel, SLOT(update()) );
@@ -138,6 +149,8 @@ int main(int argc, char *argv[])
 	engine.rootContext()->setContextProperty(QStringLiteral("recentStationModel"),
 											 &recentStationModel);
 	QObject::connect( &filtermusic::PersistanceManager::getInstance(), SIGNAL(radioStationsChanged()),
+					  &recentStationModel, SLOT(update()) );
+	QObject::connect( &filtermusic::RadioStationManager::getInstance(), SIGNAL(radioStationsChanged()),
 					  &recentStationModel, SLOT(update()) );
 
 #ifdef Q_OS_IOS
@@ -164,6 +177,8 @@ int main(int argc, char *argv[])
 					  &filtermusic::PersistanceManager::getInstance(), SLOT(saveToLocalDb()) );
 	engine.rootContext()->setContextProperty("AudioPlayer", audioPlayer);
 
+	isAndroid = true;
+
 #endif ///Q_OS_ANDROID
 
 #ifdef Q_OS_MACOS
@@ -180,6 +195,8 @@ int main(int argc, char *argv[])
 
 	QObject::connect ( &app, SIGNAL(aboutToQuit()),
 					   &filtermusic::PersistanceManager::getInstance(), SLOT(saveToLocalDb()) );
+
+	engine.rootContext()->setContextProperty("isAndroid", isAndroid);
 
 	/// local database
 	if (!QSqlDatabase::drivers().contains("QSQLITE"))

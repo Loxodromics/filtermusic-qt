@@ -21,7 +21,9 @@ RadioStation::RadioStation(QObject* parent, QString name, QString longDescriptio
 	  m_position(position),
 	  m_uid(uid),
 	  m_liked(liked),
-	  m_lastPlayed(lastPlayed)
+	  m_lastPlayed(lastPlayed),
+	  m_reachable(true),
+	  m_reachableQueried()
 {
 
 }
@@ -35,8 +37,12 @@ RadioStation* RadioStation::fromJson(QJsonObject& json, QObject* parent)
 	const qint32 categoryId = json.value(STATION_KEY_GENRE).toString().toInt();
 	const qint32 position = json.value(STATION_KEY_POSTION).toString().toInt();
 	const QString uid = json.value(STATION_KEY_ID).toString();
-	const bool liked = false;
-	const QDateTime lastPlayed;
+	const bool liked = false;//((qrand() % 20) >= 19);
+	QDateTime lastPlayed;
+//	if ((qrand() % 20) >= 19)
+//		lastPlayed = QDateTime::currentDateTimeUtc();
+
+
 
 	RadioStation* radioStation = new RadioStation( parent,
 												   name,
@@ -109,6 +115,27 @@ QString RadioStation::toString()
 	return out;
 }
 
+bool RadioStation::reachable() const
+{
+	return this->m_reachable;
+}
+
+void RadioStation::setReachable(bool reachable)
+{
+	this->m_reachable = reachable;
+	this->setReachableQueried( QDateTime::currentDateTimeUtc() );
+}
+
+const QDateTime RadioStation::reachableQueried() const
+{
+	return this->m_reachableQueried;
+}
+
+void RadioStation::setReachableQueried(const QDateTime reachableQueried)
+{
+	this->m_reachableQueried = reachableQueried;
+}
+
 bool RadioStation::liked() const
 {
 	return this->m_liked;
@@ -128,7 +155,5 @@ void RadioStation::setLastPlayed(const QDateTime& lastPlayed)
 {
 	this->m_lastPlayed = lastPlayed;
 }
-
-
 
 } /// namespace filtermusic

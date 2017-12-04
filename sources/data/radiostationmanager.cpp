@@ -6,8 +6,11 @@
 //  Copyright (c) 2017 Philipp Engelhard. All rights reserved.
 //
 #include "radiostationmanager.h"
+#include "sources/network/networkaccessmanager.h"
+#include "sources/commons/constants.h"
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QTimer>
 #include <limits.h>
 #include <QDebug>
 
@@ -26,7 +29,8 @@ RadioStationManager::RadioStationManager(QObject* parent)
 	  m_currentAudioMedia(),
 	  m_liked(false)
 {
-
+	connect( &NetworkAccessManager::getInstance(), SIGNAL(urlReached(QString,bool)),
+			 this, SLOT(stationReachable(QString,bool)));
 }
 
 void RadioStationManager::parseRadioStationsJson(QJsonArray& jsonArray)
@@ -103,14 +107,17 @@ qint32 RadioStationManager::numberOfStationsInCategory(qint32 categoryId)
 		return 0;
 
 	qint32 stationCount = 0;
+	QMap<qint32, RadioStation*> categoryStations;
 	for ( RadioStation* station : this->m_radioStations )
 	{
 		if ( station->categoryId() == categoryId )
 		{
 			stationCount++;
+			categoryStations.insert(station->position(), station);
 		}
 	}
-	return stationCount;
+//	qDebug() << "RadioStationManager::numberOfStationsInCategory" << stationCount << categoryStations.size() << categoryId;
+	return categoryStations.size();
 }
 
 RadioGenre* RadioStationManager::radioGenreAtPosition(qint32 position)
@@ -134,6 +141,8 @@ RadioStation* RadioStationManager::radioStationAtPosition(qint32 position, qint3
 	{
 		if ( station->categoryId() == categoryId)
 		{
+//			if (categoryStations.contains(station->position()))
+//				qDebug() << "vvvvvstation->position()" << station->position();
 			categoryStations.insert(station->position(), station);
 		}
 	}
@@ -205,6 +214,9 @@ void RadioStationManager::setCurrentCategory(const qint32& currentCategory)
 {
 	qDebug() << "RadioStationManager::setCurrentCategory:" << currentCategory;
 	this->m_currentCategory = currentCategory;
+	emit radioStationsChanged();
+//	QTimer::singleShot(100, this, SLOT(querryReachability()));
+	this->querryReachability();
 }
 
 void RadioStationManager::setStation(const QString uid)
@@ -376,9 +388,39 @@ void RadioStationManager::setLiked(bool liked)
 	emit likedChanged(this->m_liked);
 }
 
+void RadioStationManager::stationReachable(QString urlString, bool reachable)
+{
+	for ( RadioStation* station : this->m_radioStations )
+	{
+		if (station->url().toString() == urlString) {
+			station->setReachable( reachable );
+			return;
+		}
+	}
+}
+
+void RadioStationManager::querryReachability()
+{
+//	qDebug() << "RadioStationManager::querryReachability";
+	for ( RadioStation* station : this->m_radioStations )
+	{
+//		qDebug() << "RadioStationManager::querryReachability pling";
+		if ( station->categoryId() == this->currentCategory() )
+		{
+			if ( !station->reachableQueried().isValid() ||
+				  station->reachableQueried().secsTo( QDateTime::currentDateTimeUtc() ) > QUERY_TIME_REACHABILITY)
+			{
+				qDebug() << "RadioStationManager::pingUrl";
+				NetworkAccessManager::getInstance().pingUrl(station->url().toString());
+			}
+		}
+	}
+	qDebug() << "RadioStationManager::querryReachability done";
+}
+
 void RadioStationManager::updateRadioStation(RadioStation* radioStation)
 {
-	qDebug() << "RadioStationManager::updateRadioStation" << radioStation->uid();
+//	qDebug() << "RadioStationManager::updateRadioStation" << radioStation->uid();
 
 	if ( this->m_radioStations.contains(radioStation->uid()) )
 	{

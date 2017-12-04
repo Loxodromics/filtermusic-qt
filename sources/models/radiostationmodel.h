@@ -9,7 +9,7 @@
 #define FILTERMUSIC_RADIOSTATIONMODEL_H
 
 #include <QAbstractListModel>
-
+#include <QTimer>
 
 namespace filtermusic {
 
@@ -29,7 +29,8 @@ public:
 		PositionRole,
 		UidRole,
 		LikedRole,
-		LastPlayedRole
+		LastPlayedRole,
+		ReachableRole
 	};
 
 	enum RadioStationModelType {
@@ -56,6 +57,8 @@ public:
 
 public slots:
 	void setSize(int size);
+	void update(int updateIndex);
+	void deferredUpdate();
 
 signals:
 	void sizeChanged(int size);
@@ -66,7 +69,7 @@ protected:
 
 	RadioStationModelType type;
 	int m_size;
-
+	QTimer m_deferredUpdateTimer;
 
 protected slots:
 	void update();

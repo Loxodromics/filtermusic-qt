@@ -12,9 +12,14 @@
 namespace filtermusic {
 
 RadioStationModel::RadioStationModel(QObject* parent)
-	: QAbstractListModel(parent)
+	: QAbstractListModel(parent),
+	  m_size(0),
+	  m_deferredUpdateTimer()
 {
-
+	this->m_deferredUpdateTimer.setInterval(300);
+	this->m_deferredUpdateTimer.setSingleShot(true);
+	QObject::connect( &this->m_deferredUpdateTimer, SIGNAL(timeout()),
+					  this, SLOT(update()) );
 }
 
 QVariant RadioStationModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -64,6 +69,11 @@ QVariant RadioStationModel::data(const QModelIndex& index, int role) const
 //	qDebug() << "role:" << role;
 
 	RadioStation* station = this->getStationAt( index.row() );
+	if (station == nullptr)
+	{
+		return QVariant();
+	}
+
 	switch (role)
 	{
 	case NameRole:
@@ -85,8 +95,9 @@ QVariant RadioStationModel::data(const QModelIndex& index, int role) const
 		return QVariant::fromValue( station->liked() );
 	case LastPlayedRole:
 		return QVariant::fromValue( station->lastPlayed() );
+	case ReachableRole:
+		return QVariant::fromValue( station->reachable() );
 	}
-
 	return QVariant();
 }
 
@@ -102,31 +113,38 @@ QHash<int, QByteArray> RadioStationModel::roleNames() const
 	roles[UidRole] = "uid";
 	roles[LikedRole] = "liked";
 	roles[LastPlayedRole] = "lastPlayed";
+	roles[ReachableRole] = "reachable";
 	return roles;
 }
 
 RadioStationModel::RadioStationModelType RadioStationModel::getType() const
 {
-	return type;
+	return this->type;
 }
 
 void RadioStationModel::setType(const RadioStationModelType& value)
 {
-	type = value;
+	this->type = value;
 }
 
 int RadioStationModel::size() const
 {
-	return m_size;
+	return this->m_size;
 }
 
 void RadioStationModel::setSize(int size)
 {
-	if (m_size == size)
+	if (this->m_size == size)
 		return;
 
-	m_size = size;
-	emit sizeChanged(m_size);
+	this->m_size = size;
+	emit sizeChanged(this->m_size);
+}
+
+void RadioStationModel::deferredUpdate()
+{
+//	qDebug() << "RadioStationModel::deferredUpdate";
+	this->m_deferredUpdateTimer.start();
 }
 
 void RadioStationModel::update()
@@ -135,8 +153,18 @@ void RadioStationModel::update()
 	beginResetModel();
 	endResetModel();
 	int count = this->rowCount();
-	emit dataChanged( index(0, 0), index(count, 0) );
 	emit setSize(count);
+	emit dataChanged( index(0, 0), index(count, 0) );
+}
+
+void RadioStationModel::update(int updateIndex)
+{
+	qDebug() << "RadioStationModel::update(" << updateIndex << ")";
+	beginResetModel();
+	endResetModel();
+	int count = this->rowCount();
+	emit setSize(count);
+	emit dataChanged( index(updateIndex, 0), index(updateIndex, 0) );
 }
 
 RadioStation* RadioStationModel::getStationAt( int row ) const
@@ -157,8 +185,6 @@ RadioStation* RadioStationModel::getStationAt( int row ) const
 		return nullptr;
 		break;
 	}
-
-
 }
 
 

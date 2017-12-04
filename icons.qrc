@@ -12,5 +12,6 @@
         <file>resources/icons/chevron_down.png</file>
         <file>resources/icons/no_station.png</file>
         <file>resources/images/filtermusic-logo-medium.png</file>
+        <file>resources/icons/disconnected.png</file>
     </qresource>
 </RCC>

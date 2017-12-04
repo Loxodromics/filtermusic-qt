@@ -13,21 +13,22 @@ ApplicationWindow {
 
     onClosing: {
         /// handle the Android back button
-        if ( player.isMaximized() ) {
-            player.minimize()
-            close.accepted = false;
-        }
-        else if (tabBar.currentIndex !== 0) {
-            tabBar.currentIndex = 0
-            close.accepted = false;
-        }
-        else if ( stackView.depth > 1 ) {
-            stackView.pop()
-            close.accepted = false;
-        }
-        else {
-            console.log("ccc_== accept")
-            close.accepted = true;
+        if ( isAndroid ) {
+            if ( player.isMaximized() ) {
+                player.minimize()
+                close.accepted = false;
+            }
+            else if (tabBar.currentIndex !== 0) {
+                tabBar.currentIndex = 0
+                close.accepted = false;
+            }
+            else if ( stackView.depth > 1 ) {
+                stackView.pop()
+                close.accepted = false;
+            }
+            else {
+                close.accepted = true;
+            }
         }
     }
 
@@ -40,20 +41,6 @@ ApplicationWindow {
         Page {
             id: categoriesListPage
             background: Item {} /// clear background
-
-//            focus: true
-//            Keys.onReleased: {
-//                if (event.key === Qt.Key_Back) {
-//                    console.log("Android back")
-//                    if ( !stackView.busy &&
-//                         (stackView.currentItem !== stackView.initialItem) ) {
-//                        stackView.pop()
-//                        event.accepted = true
-//                    }
-//        //            event.accepted = true
-//                    //do some action here like close or pop the stack view
-//                }
-//            }
 
             StackView {
                 id: stackView
@@ -147,6 +134,7 @@ ApplicationWindow {
         }
 
         LfdTabButton {
+            id: categoriesButton
             text: qsTr("Categories")
             onClicked: {
                 if ( !stackView.busy &&
@@ -156,12 +144,15 @@ ApplicationWindow {
             }
         }
         LfdTabButton {
+            id: favoritesButton
             text: qsTr("Favorites")
         }
         LfdTabButton {
+            id: recentButton
             text: qsTr("Recent")
         }
         LfdTabButton {
+            id: aboutButton
             text: qsTr("About")
         }
     }
@@ -195,6 +186,7 @@ ApplicationWindow {
     }
 
     background: Rectangle {
+//        color: "#1ad517"
 
         color: UI.TABLE_BACKGROUND_COLOR
 //        gradient: Gradient {

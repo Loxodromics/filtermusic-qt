@@ -29,12 +29,18 @@ public:
 	Q_INVOKABLE void fetchAll();
 	Q_INVOKABLE void fetchRadioStation();
 	Q_INVOKABLE void fetchRadioGenres();
+	Q_INVOKABLE void pingUrl(const QString urlString);
+//	Q_INVOKABLE void pingUrlThread(const QString urlString);
 
 signals:
+	void urlReached(QString urlString, bool reached);
+
 public slots:
 private slots:
 	void handleFetchRadioStation();
 	void handleFetchRadioGenres();
+	void handleAddressPinger(QString urlString, bool reached);
+	void handleAddressPinger2();
 
 protected:
 	QNetworkRequest getRequest();
