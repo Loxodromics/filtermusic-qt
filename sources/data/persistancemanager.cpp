@@ -6,6 +6,7 @@
 //  Copyright (c) 2017 Philipp Engelhard. All rights reserved.
 //
 #include <QFileInfo>
+#include <QSettings>
 #include "persistancemanager.h"
 #include "sources/data/radiostation.h"
 #include "sources/data/radiogenre.h"
@@ -132,6 +133,48 @@ void PersistanceManager::signalStationsChanged()
 void PersistanceManager::signalCategoriesChanged()
 {
 	emit categoriesChanged();
+}
+
+void PersistanceManager::loadLocalSettings()
+{
+	QSettings settings;
+	if ( !settings.contains(SETTINGS_KEY_VERSION) )
+	{
+		settings.setValue(SETTINGS_KEY_VERSION, SETTINGS_VALUE_VERSION);
+		settings.setValue(SETTINGS_KEY_ACTIVE, SETTINGS_VALUE_ACTIVE);
+		settings.setValue(SETTINGS_KEY_MAINTENANCE, SETTINGS_VALUE_MAINTENANCE);
+		settings.setValue(SETTINGS_KEY_URLS_STATIONS_FEED, SETTINGS_VALUE_URLS_STATIONS_FEED);
+		settings.setValue(SETTINGS_KEY_URLS_CATEGORIES_FEED, SETTINGS_VALUE_URLS_CATEGORIES_FEED);
+		settings.setValue(SETTINGS_KEY_STRINGS + "/AboutView/visitUs", "Visit us at:");
+		settings.setValue(SETTINGS_KEY_STRINGS + "/AboutView/visitUsLink", "filtermusic.net");
+		settings.setValue(SETTINGS_KEY_STRINGS + "/AboutView/visitUsLinkUrl", "https://filtermusic.net");
+		settings.setValue(SETTINGS_KEY_STRINGS + "/AboutView/contactText", "Contact:");
+		settings.setValue(SETTINGS_KEY_STRINGS + "/AboutView/contactLink", "info@filtermusic.net");
+		settings.setValue(SETTINGS_KEY_STRINGS + "/AboutView/contactLinkUrl", "mailto:?to=info@filtermusic.net&subject=Feedback to filtermusic app");
+		settings.setValue(SETTINGS_KEY_STRINGS + "/AboutView/aboutText", "Filtermusic is updated with radio stations that stream in high quality (128Kbps and higher) and play only music; you won't find a radio here where people having lenghty discussions. All streams presented have been filtered especially for electronic & dance music from thousands of stations all over the Internet.");
+		settings.setValue(SETTINGS_KEY_STRINGS + "/CategoriesListView/categorySubtext", " Stations");
+		settings.setValue(SETTINGS_KEY_STRINGS + "/NoFavoritesView/noFavorites", "No favorites yet.\n\nUse the ☆ button in the player to add stations here.");
+		settings.setValue(SETTINGS_KEY_STRINGS + "/NoRecentView/noRecents", "No recent stations yet.\n\nListen to some stations and they will appear here.");
+		settings.setValue(SETTINGS_KEY_STRINGS + "/main/categoriesButton", "Categories");
+		settings.setValue(SETTINGS_KEY_STRINGS + "/main/favoritesButton", "Favorites");
+		settings.setValue(SETTINGS_KEY_STRINGS + "/main/recentButton", "Recent");
+		settings.setValue(SETTINGS_KEY_STRINGS + "/main/aboutButton", "About");
+		settings.sync();
+	}
+}
+
+const QString PersistanceManager::getSetting(const QString key, const QString defaultValue)
+{
+	QSettings settings;
+	if ( defaultValue.isEmpty() )
+		return settings.value(key, QVariant::fromValue(QStringLiteral("Unknown key: ") + key)).toString();
+	else
+		return settings.value(key, QVariant::fromValue( defaultValue ) ).toString();
+}
+
+const QString PersistanceManager::getString(const QString key, const QString viewName, const QString defaultValue)
+{
+	return this->getSetting(SETTINGS_KEY_STRINGS + QStringLiteral("/") + viewName + QStringLiteral("/") + key, defaultValue);
 }
 
 void PersistanceManager::saveRadioStations()

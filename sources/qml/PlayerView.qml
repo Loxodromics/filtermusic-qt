@@ -5,8 +5,14 @@ import "qrc:/sources/javascript/UiConstants.js" as UI
 Rectangle {
     id: root
 
-    color: UI.TABLE_BACKGROUND_COLOR
+    color: "transparent";
     anchors.topMargin: root.parent.height
+
+    Image {
+        id: backgroundImage
+        source: "qrc:/resources/images/background.jpg"
+        anchors.fill: parent
+    }
 
     MouseArea {
         id: catchAllMouseare
@@ -64,8 +70,7 @@ Rectangle {
             source: RadioStationManager.logoUrl
 
             Rectangle {
-                color: "transparent" //"#c24c4caa"
-
+                color: "transparent"
                 anchors.fill: parent
             }
         }
@@ -132,7 +137,7 @@ Rectangle {
 
         Rectangle {
             id: controlsContainer
-            color: "transparent" //"#8040d72b"
+            color: "transparent"
 
             Layout.fillWidth: true
             Layout.preferredHeight: 50

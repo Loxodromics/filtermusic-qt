@@ -14,7 +14,6 @@ ListView {
         Rectangle {
             id: categoryDelegateRoot
             color: "transparent"
-//            color: UI.TABLE_CELL_BACKGROUND_COLOR
             width: parent.width
             height: layout.height
 
@@ -40,7 +39,7 @@ ListView {
                 Text {
                     id: categorySubtext
 
-                    text: numberOfStations + qsTr(" Stations")
+                    text: numberOfStations + PersistanceManager.getString("categorySubtext", "CategoriesListView", " Stations")
                     color: UI.SUB_TEXT_COLOR
                     font.pointSize: UI.SUB_TEXT_SIZE
                 }

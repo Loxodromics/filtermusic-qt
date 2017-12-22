@@ -19,7 +19,19 @@ TabButton {
         id: backgroundRectangle
         implicitHeight: 40
 
-        opacity: control.checked ? 0.3 : 0.5
-        color: control.down ? UI.TABBAR_BUTTON_BACKGROUND_DOWN : UI.TABBAR_BUTTON_BACKGROUND_NORMAL
+        color: control.down ? UI.TABBAR_BUTTON_BACKGROUND_DOWN : "transparent"
+
+        Rectangle {
+            id: selectedLine
+
+            implicitHeight: 2
+
+            opacity: control.checked ? 0.9 : 0.0
+            color: UI.FILTERMUSIC_BLUE
+
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+        }
     }
 }

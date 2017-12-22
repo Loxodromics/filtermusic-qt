@@ -168,21 +168,19 @@ void NetworkAccessManager::handleFetchRadioGenres()
 
 void NetworkAccessManager::pingUrl( const QString urlString )
 {
-	qDebug() << "NetworkAccessManager::pingUrl";
+//	qDebug() << "NetworkAccessManager::pingUrl";
 	AddressPinger* addressPinger = new AddressPinger( QUrl(urlString) );
 
 //	connect( addressPinger, SIGNAL(addressReached(QString, bool)),
 //			 this, SLOT(handleAddressPinger(QString, bool)) );
 	connect( addressPinger, SIGNAL(finished()),
-			 this, SLOT(handleAddressPinger2()) );
+			 this, SLOT(handleAddressPinger()) );
 
 	addressPinger->start(QThread::LowPriority);
-//	addressPinger->run();
-//	QTimer::singleShot(10, addressPinger, SLOT(go()));
 
 }
 
-void NetworkAccessManager::handleAddressPinger(QString urlString, bool reached)
+void NetworkAccessManager::handleAddressPinger_old(QString urlString, bool reached)
 {
 //	never called
 	AddressPinger* addressPinger = (AddressPinger*)sender();
@@ -192,16 +190,18 @@ void NetworkAccessManager::handleAddressPinger(QString urlString, bool reached)
 
 	emit urlReached(urlString, false);
 
-	//	addressPinger->deleteLater();
+	addressPinger->deleteLater();
 }
 
-void NetworkAccessManager::handleAddressPinger2()
+void NetworkAccessManager::handleAddressPinger()
 {
 	AddressPinger* addressPinger = (AddressPinger*)sender();
-//	qDebug() << "handleAddressPinger2" << addressPinger->didConnect();
+//	qDebug() << "handleAddressPinger" << addressPinger->didConnect();
 
 	RadioStationManager::getInstance().stationReachable( addressPinger->url().toString(), addressPinger->didConnect() );
 	emit urlReached( addressPinger->url().toString(), addressPinger->didConnect() );
+
+	addressPinger->deleteLater();
 }
 
 } /// namespace filtermusic

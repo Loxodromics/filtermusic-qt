@@ -18,7 +18,7 @@ Item {
         anchors.rightMargin: UI.PADDING_LARGE
         anchors.verticalCenter: parent.verticalCenter
 
-        text: qsTr("No recent stations yet.
+        text: PersistanceManager.getString("noRecents", "NoRecentView", "No recent stations yet.
 
 Listen to some stations and they will appear here.")
     }

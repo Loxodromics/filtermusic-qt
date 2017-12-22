@@ -5,11 +5,12 @@ import "qrc:/sources/javascript/UiConstants.js" as UI
 Rectangle {
     id: root
 
-    color: UI.TABLE_BACKGROUND_COLOR
+    color: "transparent"
 
     ColumnLayout {
         id: mainLayout
         anchors.fill: parent
+        anchors.margins: UI.PADDING_NORMAL
 
         Image {
             id: logo
@@ -20,7 +21,6 @@ Rectangle {
             Layout.preferredWidth: parent.width
             Layout.minimumWidth: 0
 
-//            Layout.fillHeight: true
         }
 
         Item {
@@ -32,7 +32,7 @@ Rectangle {
             Text {
                 id: visitUsText
 
-                text: qsTr("Visit us at:")
+                text: PersistanceManager.getString("visitUsText", "AboutView", "Visit us at:")
                 font.family: "Avenir"
                 color: UI.PRIMARY_TEXT_COLOR
                 anchors.left: parent.left
@@ -43,7 +43,7 @@ Rectangle {
             Text {
                 id: visitUsLink
 
-                text: qsTr("filtermusic.net")
+                text: PersistanceManager.getString("visitUsLink", "AboutView", "filtermusic.net")
                 font.family: "Avenir"
                 color: UI.PRIMARY_TEXT_COLOR
                 anchors.right: parent.right
@@ -56,7 +56,7 @@ Rectangle {
                 anchors.fill: parent
 
                 onClicked: {
-                    Qt.openUrlExternally("https://filtermusic.net")
+                    Qt.openUrlExternally( PersistanceManager.getString("visitUsLinkUrl", "AboutView", "https://filtermusic.net") )
                 }
             }
         }
@@ -70,7 +70,7 @@ Rectangle {
             Text {
                 id: contactText
 
-                text: qsTr("Contact:")
+                text: PersistanceManager.getString("contactText", "AboutView", "Contact:")
                 font.family: "Avenir"
                 color: UI.PRIMARY_TEXT_COLOR
                 anchors.left: parent.left
@@ -81,7 +81,7 @@ Rectangle {
             Text {
                 id: contactLink
 
-                text: qsTr("info@filtermusic.net")
+                text: PersistanceManager.getString("contactLink", "AboutView", "info@filtermusic.net")
                 font.family: "Avenir"
                 color: UI.PRIMARY_TEXT_COLOR
                 anchors.right: parent.right
@@ -95,7 +95,7 @@ Rectangle {
                 anchors.fill: parent
 
                 onClicked: {
-                    Qt.openUrlExternally("mailto:?to=info@filtermusic.net&subject=Feedback to filtermusic app")
+                    Qt.openUrlExternally( PersistanceManager.getString("contactLinkUrl", "AboutView", "mailto:?to=info@filtermusic.net&subject=Feedback to filtermusic app") )
                 }
             }
         }
@@ -103,7 +103,7 @@ Rectangle {
         Text {
             id: aboutText
 
-            text: qsTr("Filtermusic is updated with radio stations that stream in high quality (128Kbps and higher) and play only music; you won't find a radio here where people having lenghty discussions. All streams presented have been filtered especially for electronic & dance music from thousands of stations all over the Internet.")
+            text: PersistanceManager.getString("aboutText", "AboutView", "Filtermusic is updated with radio stations that stream in high quality (128Kbps and higher) and play only music; you won't find a radio here where people having lenghty discussions. All streams presented have been filtered especially for electronic & dance music from thousands of stations all over the Internet.")
             font.family: "Avenir"
             color: UI.PRIMARY_TEXT_COLOR
             wrapMode: Text.WordWrap

@@ -62,7 +62,6 @@ ApplicationWindow {
                     }
                 }
             }
-
         }
 
         Page {
@@ -82,6 +81,7 @@ ApplicationWindow {
         }
 
         Page {
+            background: Item {} /// clear background
             AboutView {
                 id: aboutView
                 anchors.fill: parent
@@ -96,7 +96,6 @@ ApplicationWindow {
         anchors.right: parent.right
         anchors.bottom: parent.bottom
 
-
         parent: root.overlay
     }
 
@@ -104,18 +103,16 @@ ApplicationWindow {
         id: tabBar
         currentIndex: swipeView.currentIndex
         background: Rectangle {
-//            gradient: Gradient {
-//                GradientStop {
-//                    position: 0.00;
-//                    color: "#FF000000";
-//                }
-//                GradientStop {
-//                    position: 1.00;
-//                    color: "#00000000";
-//                }
-//            }
-
-            color: UI.TABLE_BACKGROUND_COLOR
+            gradient: Gradient {
+                GradientStop {
+                    position: 0.50;
+                    color: UI.HEADER_DARK_BLUE
+                }
+                GradientStop {
+                    position: 1.00;
+                    color: "#00000000";
+                }
+            }
 
             FastBlur {
                 id: fastBlur
@@ -130,12 +127,11 @@ ApplicationWindow {
                     sourceRect: Qt.rect(0, -fastBlur.height, fastBlur.width, fastBlur.height)
                 }
             }
-
         }
 
         LfdTabButton {
             id: categoriesButton
-            text: qsTr("Categories")
+            text: PersistanceManager.getString("categoriesButton", "main", "Categories")
             onClicked: {
                 if ( !stackView.busy &&
                      (stackView.currentItem !== stackView.initialItem) ) {
@@ -145,15 +141,15 @@ ApplicationWindow {
         }
         LfdTabButton {
             id: favoritesButton
-            text: qsTr("Favorites")
+            text: PersistanceManager.getString("favoritesButton", "main", "Favorites")
         }
         LfdTabButton {
             id: recentButton
-            text: qsTr("Recent")
+            text: PersistanceManager.getString("recentButton", "main", "Recent" );
         }
         LfdTabButton {
             id: aboutButton
-            text: qsTr("About")
+            text: PersistanceManager.getString("aboutButton", "main", "About" );
         }
     }
 
@@ -185,20 +181,18 @@ ApplicationWindow {
         }
     }
 
-    background: Rectangle {
-//        color: "#1ad517"
+    background: Image {
+        id: backgroundImage
+        source: "qrc:/resources/images/background.jpg"
 
-        color: UI.TABLE_BACKGROUND_COLOR
-//        gradient: Gradient {
-//            GradientStop {
-//                position: 0.00;
-//                color: "#ff00ff";
-//            }
-//            GradientStop {
-//                position: 1.00;
-//                color: "#ffff00";
-//            }
-//        }
+        Rectangle {
+            id: backgroundImageOverlay
 
+            color: "black"
+            opacity: 0.2
+
+            anchors.fill: parent
+        }
     }
+
 }

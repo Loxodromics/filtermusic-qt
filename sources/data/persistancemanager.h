@@ -33,6 +33,9 @@ public:
 	void setResourcePath( const QString resourcePath );
 	void signalStationsChanged();
 	void signalCategoriesChanged();
+	void loadLocalSettings();
+	const QString getSetting(const QString key, const QString defaultValue = QStringLiteral(""));
+	Q_INVOKABLE const QString getString(const QString key, const QString viewName, const QString defaultValue);
 
 signals:
 	void radioStationsChanged();

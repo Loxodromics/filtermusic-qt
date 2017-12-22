@@ -18,7 +18,7 @@ Item {
         anchors.rightMargin: UI.PADDING_LARGE
         anchors.verticalCenter: parent.verticalCenter
 
-        text: qsTr("No favorites yet.
+        text: PersistanceManager.getString("noFavorites", "NoFavoritesView", "No favorites yet.
 
 Use the ☆ button in the player to add stations here.")
     }

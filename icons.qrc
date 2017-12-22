@@ -13,5 +13,6 @@
         <file>resources/icons/no_station.png</file>
         <file>resources/images/filtermusic-logo-medium.png</file>
         <file>resources/icons/disconnected.png</file>
+        <file>resources/images/background.jpg</file>
     </qresource>
 </RCC>

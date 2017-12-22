@@ -38,6 +38,7 @@ const QByteArray	HEADER_CUSTOM_USER_AGENT		= QByteArray("X-Custom-User-Agent");
 const QByteArray	HEADER_USER_AGENT				= QByteArray("User-Agent");
 const QString		URL_STATIONS_FEED				= QString("https://filtermusic.net/json_radios");
 const QString		URL_GENRES_FEED					= QString("https://filtermusic.net/json_categories");
+const QString		URL_SETTINGS					= QString("http://www.quatur.net/~philipp/filtermusic/settings.json");
 const qint32		PING_WAIT_TIME					= 5000;
 
 /// JSON parsing
@@ -55,6 +56,20 @@ const QString		STATION_KEY_POSTION				= QString("position");
 const QString		STATION_KEY_RADIO				= QString("radio");
 const QString		STATION_KEY_TYPE				= QString("type");
 const QString		STATION_KEY_URL					= QString("server");
+
+/// Settings
+const QString		SETTINGS_KEY_VERSION				= QString("version");
+const QString		SETTINGS_VALUE_VERSION				= QString("0.1");
+const QString		SETTINGS_KEY_ACTIVE					= QString("active");
+const QString		SETTINGS_VALUE_ACTIVE				= QString("active");
+const QString		SETTINGS_KEY_MAINTENANCE			= QString("maintenance");
+const QString		SETTINGS_VALUE_MAINTENANCE			= QString("maintenance");
+const QString		SETTINGS_KEY_URLS					= QString("urls");
+const QString		SETTINGS_KEY_URLS_STATIONS_FEED		= QString("urls/stations_feed");
+const QString		SETTINGS_VALUE_URLS_STATIONS_FEED	= QString("https://filtermusic.net/json_radios");
+const QString		SETTINGS_KEY_URLS_CATEGORIES_FEED	= QString("urls/categories_feed");
+const QString		SETTINGS_VALUE_URLS_CATEGORIES_FEED	= QString("https://filtermusic.net/json_categories");
+const QString		SETTINGS_KEY_STRINGS				= QString("strings");
 
 const QString		DATABASE_FILENAME				= QString("cacheddata.sq3");
 

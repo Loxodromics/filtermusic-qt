@@ -39,8 +39,8 @@ public slots:
 private slots:
 	void handleFetchRadioStation();
 	void handleFetchRadioGenres();
-	void handleAddressPinger(QString urlString, bool reached);
-	void handleAddressPinger2();
+	void handleAddressPinger_old(QString urlString, bool reached);
+	void handleAddressPinger();
 
 protected:
 	QNetworkRequest getRequest();

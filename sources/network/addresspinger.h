@@ -1,8 +1,8 @@
 //
 //  addresspinger.h
-//  %PROJECT_NAME%
+//  Filtermusic
 //
-//  Created by philipp2 on 21.11.2017.
+//  Created by philipp on 21.11.2017.
 //  Copyright (c) 2017 Philipp Engelhard. All rights reserved.
 //
 #ifndef FILTERMUSIC_ADDRESSPINGER_H
@@ -34,12 +34,9 @@ signals:
 	void addressReached(QString url, bool reached);
 
 public slots:
-	void pause(bool paused = true);
 	void pingOnce();
-	void go();
 
 protected:
-	QTimer* m_timer;
 	const QUrl m_url;
 	bool m_didConnect;
 };

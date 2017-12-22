@@ -102,7 +102,7 @@ Image {
                 target: root
                 visible: false
             }
-        }/*,
+        }/* TODO,
         State {
             name: "connecting"
             PropertyChanges {

@@ -22,24 +22,81 @@
 #endif /// Q_OS_IOS
 
 #ifdef Q_OS_ANDROID
+#include <jni.h>
 #include "thirdparty/LFDMobileAudioPlayer/src/android/androidaudioplayer.h"
 LFD::AndroidAudioPlayer* audioPlayer;
 #endif
 
 #ifdef Q_OS_ANDROID
 
-JNIEXPORT jint JNICALL Java_com_ahmed_QAndroidResultReceiver_jniExport_jniExport_intMethod(JNIEnv*, jobject, jint focusChange)
+
+
+
+void setFocus(JNIEnv */*env*/, jobject /*obj*/, jint n)
+{
+	qDebug() << "setFocus" << n;
+	audioPlayer->setFocus(n);
+}
+
+void setTitle(JNIEnv* env, jobject, jstring title)
+{
+	const char* nativeString = env->GetStringUTFChars(title, 0);
+
+	qDebug() << "setTitle:" << QString(nativeString);
+	audioPlayer->setTitle( QString(nativeString) );
+}
+
+static JNINativeMethod methods[] = {
+	{ "sendSetFocus", // const char* function name;
+		"(I)V", // const char* function signature
+		(void *)setFocus // function pointer
+	},
+	{ "sendSetTitle", // const char* function name;
+		"(Ljava/lang/String;)V", // const char* function signature
+		(void *)setTitle // function pointer
+	}
+};
+
+// this method is called automatically by Java VM
+// after the .so file is loaded
+JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* /*reserved*/)
+{
+	JNIEnv* env;
+	// get the JNIEnv pointer.
+	if (vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6)
+		   != JNI_OK) {
+		return JNI_ERR;
+	}
+
+	// step 3
+	// search for Java class which declares the native methods
+	jclass javaClass = env->FindClass("net/quatur/QAndroidResultReceiver/jniExport/jniExport");
+	if (!javaClass)
+		return JNI_ERR;
+
+	// step 4
+	// register our native methods
+	if (env->RegisterNatives(javaClass, methods,
+							sizeof(methods) / sizeof(methods[0])) < 0) {
+		return JNI_ERR;
+	}
+	return JNI_VERSION_1_6;
+}
+
+
+
+JNIEXPORT jint JNICALL Java_net_quatur_QAndroidResultReceiver_jniExport_jniExport_intMethod(JNIEnv*, jobject, jint focusChange)
 {
 	/// TODO
 //	static int lastfocus = 0;
 //	rootObject->setProperty("command", focusChange);
-	qDebug() << "yyy_Java_com_ahmed_QAndroidResultReceiver_jniExport_jniExport_intMethod " << focusChange;
+	qDebug() << "yyy_Java_net_quatur_QAndroidResultReceiver_jniExport_jniExport_intMethod " << focusChange;
 	audioPlayer->setFocus(focusChange);
 
 	return 1;
 }
 
-JNIEXPORT jint JNICALL Java_com_ahmed_QAndroidResultReceiver_jniExport_jniExport_titleReporter(JNIEnv* env, jobject, jstring title)
+JNIEXPORT jint JNICALL Java_net_quatur_QAndroidResultReceiver_jniExport_jniExport_titleReporter(JNIEnv* env, jobject, jstring title)
 {
 	const char* nativeString = env->GetStringUTFChars(title, 0);
 
@@ -107,12 +164,16 @@ int main(int argc, char *argv[])
 	bool isAndroid = false;
 
 	filtermusic::PersistanceManager::getInstance().setResourcePath( determineResourcePath( &engine ) );
+	filtermusic::PersistanceManager::getInstance().loadLocalSettings();
 
 	engine.rootContext()->setContextProperty( QStringLiteral("NetworkAccessManager"),
 											  filtermusic::NetworkAccessManager::instancePointer() );
 
 	engine.rootContext()->setContextProperty( QStringLiteral("RadioStationManager"),
 											  &filtermusic::RadioStationManager::getInstance() );
+
+	engine.rootContext()->setContextProperty( QStringLiteral("PersistanceManager"),
+											  &filtermusic::PersistanceManager::getInstance() );
 
 	filtermusic::RadioGenreModel radioGenreModel;
 	engine.rootContext()->setContextProperty(QStringLiteral("radioGenreModel"),

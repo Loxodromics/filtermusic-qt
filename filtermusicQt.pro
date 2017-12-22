@@ -63,6 +63,10 @@ ios {
 android {
     QT += androidextras
 
+    QMAKE_CXXFLAGS += -g
+
+    TARGET = $$ANDROID_TARGET_ARCH/filtermusicQt
+
     DISTFILES += \
         platforms/android/AndroidManifest.xml
 #        ANDROID_PACKAGE_SOURCE_DIR = $$PWD/platforms/android
