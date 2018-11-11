@@ -27,6 +27,7 @@ public:
 	static NetworkAccessManager* instancePointer();
 
 	Q_INVOKABLE void fetchAll();
+	Q_INVOKABLE void fetchSettings();
 	Q_INVOKABLE void fetchRadioStation();
 	Q_INVOKABLE void fetchRadioGenres();
 	Q_INVOKABLE void pingUrl(const QString urlString);
@@ -35,8 +36,8 @@ public:
 signals:
 	void urlReached(QString urlString, bool reached);
 
-public slots:
 private slots:
+	void handleFetchSettings();
 	void handleFetchRadioStation();
 	void handleFetchRadioGenres();
 	void handleAddressPinger_old(QString urlString, bool reached);

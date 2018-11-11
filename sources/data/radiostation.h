@@ -60,6 +60,9 @@ public:
 	const QDateTime reachableQueried() const;
 	void setReachableQueried(const QDateTime reachableQueried);
 
+	bool markedForDeletion() const;
+	void setMarkedForDeletion(bool markedForDeletion);
+
 protected:
 	const QString m_name;
 	const QString m_longDescription;
@@ -73,6 +76,7 @@ protected:
 	QDateTime m_lastPlayed;
 	bool m_reachable;
 	QDateTime m_reachableQueried;
+	bool m_markedForDeletion;
 };
 
 } /// namespace filtermusic

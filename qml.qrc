@@ -16,5 +16,11 @@
         <file>sources/qml/NoFavoritesView.qml</file>
         <file>sources/qml/NoRecentView.qml</file>
         <file>sources/qml/RecentView.qml</file>
+        <file>sources/qml/LicensesView.qml</file>
+        <file>sources/qml/DeactivatedView.qml</file>
+        <file>resources/fonts/Nunito-ExtraLight.ttf</file>
+        <file>resources/fonts/Nunito-Light.ttf</file>
+        <file>resources/text/licenceText.js</file>
+        <file>resources/fonts/HELR45W.ttf</file>
     </qresource>
 </RCC>

@@ -5,14 +5,21 @@ import "qrc:/sources/javascript/UiConstants.js" as UI
 Rectangle {
     id: root
 
-    color: "transparent";
+    color: UI.BACKGROUND_COLOR
     anchors.topMargin: root.parent.height
 
-    Image {
-        id: backgroundImage
-        source: "qrc:/resources/images/background.jpg"
-        anchors.fill: parent
+    Behavior on anchors.topMargin {
+        PropertyAnimation {
+            easing.type: Easing.InOutQuad
+            duration: 250
+        }
     }
+
+//    Image {
+//        id: backgroundImage
+//        source: "qrc:/resources/images/background.jpg"
+//        anchors.fill: parent
+//    }
 
     MouseArea {
         id: catchAllMouseare
@@ -28,48 +35,69 @@ Rectangle {
         Item {
             id: header
 
-            Layout.preferredHeight: 30
-            Layout.minimumHeight: 30
+            Layout.preferredHeight: UI.UNIT_HEIGHT
+            Layout.minimumHeight: UI.ICON_HEIGHT
             Layout.fillWidth: true
-
-            IconButton {
-                id: minimizeButton
-                iconSource: "qrc:/resources/icons/chevron_down.png"
-                anchors.top: parent.top
-                anchors.left: parent.left
-                anchors.leftMargin: UI.PADDING_NORMAL
-                anchors.bottom: parent.bottom
-
-                onClicked: {
-                    console.log("Player.minimizeButton clicked")
-                    root.minimize()
-                }
-            }
 
             Text {
                 id: stationText
 
                 text: RadioStationManager.stationName
                 color: UI.PRIMARY_TEXT_COLOR
-                font.family: "Avenir"
-                textFormat: Text.StyledText
+                font.family: UI.FONT_NAME
+                font.pointSize: UI.TEXT_SIZE_BIG
+                font.capitalization: Font.AllUppercase
+                anchors.left: parent.left
+                anchors.leftMargin: UI.PADDING_NORMAL
+                anchors.right: minimizeButton.left
+                anchors.verticalCenter: parent.verticalCenter
+            }
 
-                anchors.centerIn: parent
+            IconButton {
+                id: minimizeButton
+                iconSource: "qrc:/resources/icons/chevron_down.png"
+
+                height: UI.ICON_HEIGHT
+                width: height
+
+                anchors.right: parent.right
+                anchors.rightMargin: UI.PADDING_NORMAL
+                anchors.verticalCenter: parent.verticalCenter
+
+                onClicked: {
+                    root.minimize()
+                }
             }
         } /// header
 
+        Item {
+            Layout.preferredHeight: UI.PADDING_LARGE
+//            Layout.maximumHeight: UI.PADDING_NORMAL
+            Layout.minimumHeight: 0
+            Layout.fillHeight: true
+        }
+
         Image {
-            id: stationImage
+            id: stationImagePlaceholder
             fillMode: Image.PreserveAspectFit
 
             Layout.minimumHeight: 10
             Layout.preferredWidth: parent.width
             Layout.minimumWidth: 0
+            Layout.preferredHeight: width * 0.56
 
-            Layout.fillHeight: true
-            source: RadioStationManager.logoUrl
+//            Layout.fillHeight: true
+            source: "qrc:/resources/icons/StationPlaceholder.png"
+
+            Image {
+                id: stationImage
+                source: RadioStationManager.logoUrl
+                anchors.fill: parent
+                fillMode: Image.PreserveAspectFit
+            }
 
             Rectangle {
+                /// what is this for?
                 color: "transparent"
                 anchors.fill: parent
             }
@@ -81,34 +109,21 @@ Rectangle {
             Layout.fillHeight: true
         }
 
-        Rectangle {
-            id: descriptionContainer
+        Text {
+            id: nowPlayingText
 
-            Layout.leftMargin: UI.PADDING_LARGE
-            Layout.rightMargin: UI.PADDING_LARGE
             Layout.fillWidth: true
+            Layout.minimumHeight: nowPlayingText.contentHeight
+            Layout.preferredHeight: nowPlayingText.contentHeight
+            Layout.leftMargin: UI.PADDING_NORMAL
 
-            property int textHeight: descriptionText.contentHeight + 2 * radius
-
-            Layout.preferredHeight: textHeight
-            Layout.minimumHeight: 1
-            Layout.fillHeight: true
+            text: "Now Playing"
+            font.family: UI.FONT_NAME
+            font.pointSize: UI.TEXT_SIZE_NORMAL
+            horizontalAlignment: Text.AlignLeft
+            wrapMode: Text.NoWrap
             color: UI.PRIMARY_TEXT_COLOR
-
-            radius: 5
-
-            Text {
-                id: descriptionText
-                text: RadioStationManager.longDescription
-                font.family: "Avenir"
-
-                anchors.fill: parent
-                anchors.margins: UI.PADDING_NORMAL
-                wrapMode: Text.WordWrap
-                clip: true
-                textFormat: Text.StyledText
-            }
-        } /// descriptionContainer
+        }
 
         Item {
             Layout.preferredHeight: UI.PADDING_NORMAL
@@ -116,21 +131,100 @@ Rectangle {
             Layout.fillHeight: true
         }
 
-        Text {
-            id: titlePlayingText
-            text: AudioPlayer.title
-            font.family: "Avenir"
-            horizontalAlignment: Text.AlignHCenter
-            wrapMode: Text.NoWrap
-            color: UI.PRIMARY_TEXT_COLOR
-            textFormat: Text.StyledText
+        Item {
+            id: titlePlayingTextContainter
+
+            property int widthDifference: titlePlayingText.width - titlePlayingTextContainter.width
 
             Layout.fillWidth: true
-            Layout.minimumHeight: contentHeight
+            Layout.minimumHeight: titlePlayingText.contentHeight
+            Layout.leftMargin: UI.PADDING_NORMAL
+
+            implicitHeight: titlePlayingText.contentHeight
+
+            Text {
+                id: titlePlayingText
+
+                property int offset: 0
+                anchors.left: parent.left
+//                anchors.leftMargin: UI.PADDING_NORMAL
+                anchors.verticalCenter: parent.verticalCenter
+//                anchors.horizontalCenter: parent.horizontalCenter
+//                anchors.horizontalCenterOffset: offset
+
+                text: AudioPlayer.title
+                font.family: UI.FONT_NAME
+                font.pointSize: UI.TEXT_SIZE_NORMAL
+                horizontalAlignment: Text.AlignHCenter
+                wrapMode: Text.NoWrap
+                color: UI.PRIMARY_TEXT_COLOR
+
+
+                /// Marquee Animation for titles too long to display
+                SequentialAnimation {
+                    running: titlePlayingTextContainter.widthDifference > 0
+                    loops: Animation.Infinite
+
+                    NumberAnimation {
+                        target: titlePlayingText
+                        property: 'offset'
+                        duration: titlePlayingTextContainter.widthDifference * UI.MARQUEE_DURATION_FACTOR
+                        from: -titlePlayingTextContainter.widthDifference / 2
+                        to: titlePlayingTextContainter.widthDifference / 2
+                    }
+
+                    NumberAnimation {
+                        target: titlePlayingText
+                        property: 'offset'
+                        duration: titlePlayingTextContainter.widthDifference * UI.MARQUEE_DURATION_FACTOR
+                        from: titlePlayingTextContainter.widthDifference / 2
+                        to: -titlePlayingTextContainter.widthDifference / 2
+                    }
+                }
+            }
         }
 
         Item {
-            Layout.preferredHeight: UI.PADDING_NORMAL
+            Layout.preferredHeight: UI.PADDING_LARGE
+//            Layout.maximumHeight: UI.PADDING_NORMAL
+            Layout.minimumHeight: 0
+            Layout.fillHeight: true
+        }
+
+        Rectangle {
+            id: descriptionContainer
+
+            Layout.leftMargin: UI.PADDING_NORMAL
+            Layout.rightMargin: UI.PADDING_NORMAL
+            Layout.fillWidth: true
+
+            property int textHeight: descriptionText.contentHeight + 2 * radius
+
+            Layout.preferredHeight: textHeight + 2 * UI.PADDING_NORMAL
+            Layout.minimumHeight: 1
+//            Layout.fillHeight: true
+            color: "transparent"
+
+            radius: 0
+
+            Text {
+                id: descriptionText
+                text: RadioStationManager.longDescription
+                font.family: UI.FONT_NAME
+                font.pointSize: UI.TEXT_SIZE_NORMAL
+//                horizontalAlignment: (lineCount === 1 ) ? Text.AlignHCenter : Text.AlignJustify
+                horizontalAlignment: Text.AlignLeft
+
+                anchors.fill: parent
+//                anchors.margins: UI.PADDING_NORMAL
+                wrapMode: Text.WordWrap
+                clip: true
+                color: UI.PRIMARY_TEXT_COLOR
+            }
+        } /// descriptionContainer
+
+        Item {
+            Layout.preferredHeight: UI.PADDING_LARGE
             Layout.minimumHeight: 0
             Layout.fillHeight: true
         }
@@ -140,15 +234,39 @@ Rectangle {
             color: "transparent"
 
             Layout.fillWidth: true
-            Layout.preferredHeight: 50
+            Layout.preferredHeight: 80
             Layout.minimumHeight: 30
+
+            MouseArea {
+                id: favoriteButton
+
+                anchors.right: previousButton.left
+                anchors.rightMargin: 0 //UI.PADDING_NORMAL
+                height: parent.height
+                width: height
+
+                Text {
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
+                    font.pointSize: UI.FAVORITE_BUTTON_SIZE
+                    text: RadioStationManager.liked ? "★" : "☆"
+
+                    color: "white"
+                    horizontalAlignment: Text.AlignRight
+                }
+
+                onClicked: {
+//                    console.log("nextButton clicked")
+                    RadioStationManager.toggleLiked()
+                }
+            }
 
             IconButton {
                 id: previousButton
                 iconSource: "qrc:/resources/icons/button_prev.png"
 
                 anchors.right: playButton.left
-                anchors.rightMargin: UI.PADDING_LARGE
+//                anchors.rightMargin: UI.PADDING_NORMAL
                 height: parent.height
 
                 onClicked: {
@@ -169,7 +287,7 @@ Rectangle {
                 iconSource: "qrc:/resources/icons/button_next.png"
 
                 anchors.left: playButton.right
-                anchors.leftMargin: UI.PADDING_LARGE
+//                anchors.leftMargin: UI.PADDING_NORMAL
                 height: parent.height
 
                 onClicked: {
@@ -177,37 +295,18 @@ Rectangle {
                     RadioStationManager.nextStation()
                 }
             }
-
-            MouseArea {
-                id: favoriteButton
-
-                anchors.left: nextButton.right
-                anchors.leftMargin: UI.PADDING_NORMAL
-                height: parent.height
-                width: height
-                Text {
-                    anchors.centerIn: parent
-                    font.pointSize: UI.FAVORITE_BUTTON_SIZE
-                    text: RadioStationManager.liked ? "★" : "☆"
-                    color: "white"
-                }
-
-                onClicked: {
-                    console.log("nextButton clicked")
-                    RadioStationManager.toggleLiked()
-                }
-            }
         }
 
         Item {
-            Layout.preferredHeight: UI.PADDING_NORMAL
+            Layout.preferredHeight: UI.PADDING_LARGE
             Layout.minimumHeight: 0
             Layout.fillHeight: true
         }
     } /// mainLayout
 
     function maximize() {
-        root.anchors.topMargin = 0
+        root.anchors.topMargin = UI.UNIT_HEIGHT
+        GTracker.sendScreenView("PlayerView")
     }
 
     function minimize() {

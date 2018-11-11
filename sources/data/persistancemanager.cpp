@@ -7,6 +7,8 @@
 //
 #include <QFileInfo>
 #include <QSettings>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include "persistancemanager.h"
 #include "sources/data/radiostation.h"
 #include "sources/data/radiogenre.h"
@@ -17,8 +19,58 @@ namespace filtermusic {
 
 PersistanceManager::PersistanceManager(QObject *parent)
 	: QObject(parent),
-	  m_resourcePath()
+	  m_resourcePath(),
+	  m_isDeactived(false)
 {
+
+}
+
+void PersistanceManager::parseSettings(QJsonDocument& settingsJson)
+{
+	if ( settingsJson.isObject() )
+	{
+		QSettings settings;
+		QJsonObject settingsJsonObject = settingsJson.object();
+
+		qDebug() << "settings version: " << settingsJsonObject.value(SETTINGS_KEY_VERSION).toString();
+		settings.setValue(SETTINGS_KEY_VERSION, settingsJsonObject.value(SETTINGS_KEY_VERSION).toString());
+		settings.setValue(SETTINGS_KEY_ACTIVE, settingsJsonObject.value(SETTINGS_KEY_ACTIVE).toBool());
+		settings.setValue(SETTINGS_KEY_MAINTENANCE, settingsJsonObject.value(SETTINGS_KEY_MAINTENANCE).toBool());
+
+//		qDebug() << "settingsJsonObject.value(SETTINGS_KEY_QUERRY_REACHABILITY)" << settingsJsonObject.value(SETTINGS_KEY_QUERRY_REACHABILITY);
+		if ( !settingsJsonObject.value(SETTINGS_KEY_QUERRY_REACHABILITY).isUndefined() )
+		{
+			settings.setValue(SETTINGS_KEY_QUERRY_REACHABILITY, settingsJsonObject.value(SETTINGS_KEY_QUERRY_REACHABILITY).toBool());
+//			qDebug() << "settings.value(SETTINGS_KEY_QUERRY_REACHABILITY, false).toBool():" << settings.value(SETTINGS_KEY_QUERRY_REACHABILITY, false);
+		}
+		else
+		{
+			/// old settings version withoth the key, set it to default
+			settings.setValue(SETTINGS_KEY_QUERRY_REACHABILITY, SETTINGS_VALUE_QUERRY_REACHABILITY);
+		}
+
+		if ( settingsJsonObject.value(SETTINGS_KEY_URLS).isObject() )
+		{
+			settings.setValue( SETTINGS_KEY_URLS + QStringLiteral("/") + SETTINGS_KEY_URLS_STATIONS_FEED, settingsJsonObject.value(SETTINGS_KEY_URLS).toObject()
+							   .value(SETTINGS_KEY_URLS_STATIONS_FEED).toString() );
+			settings.setValue( SETTINGS_KEY_URLS + QStringLiteral("/") + SETTINGS_KEY_URLS_CATEGORIES_FEED, settingsJsonObject.value(SETTINGS_KEY_URLS).toObject()
+							   .value(SETTINGS_KEY_URLS_CATEGORIES_FEED).toString() );
+		}
+
+		if ( settingsJsonObject.value(SETTINGS_KEY_STRINGS).isObject() )
+		{
+			QJsonObject stringsObject = settingsJsonObject.value(SETTINGS_KEY_STRINGS).toObject();
+			for ( const QString key : stringsObject.keys() )
+			{
+				settings.setValue( SETTINGS_KEY_STRINGS + QStringLiteral("/") + key,
+								   stringsObject.value(key).toString() );
+//				qDebug() << SETTINGS_KEY_STRINGS + QStringLiteral("/") + key << stringsObject.value(key).toString();
+			}
+		}
+		settings.sync();
+		this->setIsDeactived( !settings.value(SETTINGS_KEY_ACTIVE,QVariant::fromValue(true)).toBool() );
+		RadioStationManager::getInstance().setQuerryReachability(settings.value(SETTINGS_KEY_QUERRY_REACHABILITY, false).toBool());
+	}
 
 }
 
@@ -120,6 +172,15 @@ void PersistanceManager::saveToLocalDb()
 	emit radioStationsChanged();
 }
 
+void PersistanceManager::setIsDeactived(bool isDeactived)
+{
+	if (this->m_isDeactived == isDeactived)
+		return;
+
+	this->m_isDeactived = isDeactived;
+	emit isDeactivedChanged(this->m_isDeactived);
+}
+
 void PersistanceManager::setResourcePath(const QString resourcePath)
 {
 	this->m_resourcePath = resourcePath;
@@ -140,18 +201,21 @@ void PersistanceManager::loadLocalSettings()
 	QSettings settings;
 	if ( !settings.contains(SETTINGS_KEY_VERSION) )
 	{
+		qDebug() << "new settings";
 		settings.setValue(SETTINGS_KEY_VERSION, SETTINGS_VALUE_VERSION);
 		settings.setValue(SETTINGS_KEY_ACTIVE, SETTINGS_VALUE_ACTIVE);
 		settings.setValue(SETTINGS_KEY_MAINTENANCE, SETTINGS_VALUE_MAINTENANCE);
-		settings.setValue(SETTINGS_KEY_URLS_STATIONS_FEED, SETTINGS_VALUE_URLS_STATIONS_FEED);
-		settings.setValue(SETTINGS_KEY_URLS_CATEGORIES_FEED, SETTINGS_VALUE_URLS_CATEGORIES_FEED);
-		settings.setValue(SETTINGS_KEY_STRINGS + "/AboutView/visitUs", "Visit us at:");
+		settings.setValue(SETTINGS_KEY_QUERRY_REACHABILITY, SETTINGS_VALUE_QUERRY_REACHABILITY);
+		settings.setValue(SETTINGS_KEY_URLS + "/" + SETTINGS_KEY_URLS_STATIONS_FEED, SETTINGS_VALUE_URLS_STATIONS_FEED);
+		settings.setValue(SETTINGS_KEY_URLS + "/" + SETTINGS_KEY_URLS_CATEGORIES_FEED, SETTINGS_VALUE_URLS_CATEGORIES_FEED);
+		settings.setValue(SETTINGS_KEY_STRINGS + "/AboutView/visitUsText", "Visit us at:");
 		settings.setValue(SETTINGS_KEY_STRINGS + "/AboutView/visitUsLink", "filtermusic.net");
 		settings.setValue(SETTINGS_KEY_STRINGS + "/AboutView/visitUsLinkUrl", "https://filtermusic.net");
 		settings.setValue(SETTINGS_KEY_STRINGS + "/AboutView/contactText", "Contact:");
 		settings.setValue(SETTINGS_KEY_STRINGS + "/AboutView/contactLink", "info@filtermusic.net");
 		settings.setValue(SETTINGS_KEY_STRINGS + "/AboutView/contactLinkUrl", "mailto:?to=info@filtermusic.net&subject=Feedback to filtermusic app");
 		settings.setValue(SETTINGS_KEY_STRINGS + "/AboutView/aboutText", "Filtermusic is updated with radio stations that stream in high quality (128Kbps and higher) and play only music; you won't find a radio here where people having lenghty discussions. All streams presented have been filtered especially for electronic & dance music from thousands of stations all over the Internet.");
+		settings.setValue(SETTINGS_KEY_STRINGS + "/AboutView/licensesText", "Show Licenses");
 		settings.setValue(SETTINGS_KEY_STRINGS + "/CategoriesListView/categorySubtext", " Stations");
 		settings.setValue(SETTINGS_KEY_STRINGS + "/NoFavoritesView/noFavorites", "No favorites yet.\n\nUse the ☆ button in the player to add stations here.");
 		settings.setValue(SETTINGS_KEY_STRINGS + "/NoRecentView/noRecents", "No recent stations yet.\n\nListen to some stations and they will appear here.");
@@ -159,8 +223,12 @@ void PersistanceManager::loadLocalSettings()
 		settings.setValue(SETTINGS_KEY_STRINGS + "/main/favoritesButton", "Favorites");
 		settings.setValue(SETTINGS_KEY_STRINGS + "/main/recentButton", "Recent");
 		settings.setValue(SETTINGS_KEY_STRINGS + "/main/aboutButton", "About");
+		settings.setValue(SETTINGS_KEY_STRINGS + "/DeactivatedView/deactivatedText", "This version of filtermusic is no longer supported. Please check your store or our website for a newer version.");
 		settings.sync();
 	}
+
+	this->setIsDeactived( !settings.value(SETTINGS_KEY_ACTIVE,QVariant::fromValue(true)).toBool() );
+	RadioStationManager::getInstance().setQuerryReachability(settings.value(SETTINGS_KEY_QUERRY_REACHABILITY, false).toBool());
 }
 
 const QString PersistanceManager::getSetting(const QString key, const QString defaultValue)
@@ -175,6 +243,11 @@ const QString PersistanceManager::getSetting(const QString key, const QString de
 const QString PersistanceManager::getString(const QString key, const QString viewName, const QString defaultValue)
 {
 	return this->getSetting(SETTINGS_KEY_STRINGS + QStringLiteral("/") + viewName + QStringLiteral("/") + key, defaultValue);
+}
+
+bool PersistanceManager::isDeactived() const
+{
+	return this->m_isDeactived;
 }
 
 void PersistanceManager::saveRadioStations()

@@ -149,7 +149,7 @@ void RadioStationModel::deferredUpdate()
 
 void RadioStationModel::update()
 {
-	qDebug() << "RadioStationModel::update()";
+//	qDebug() << "RadioStationModel::update()";
 	beginResetModel();
 	endResetModel();
 	int count = this->rowCount();

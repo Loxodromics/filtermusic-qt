@@ -35,6 +35,7 @@ public:
 	Q_PROPERTY(QString longDescription READ longDescription NOTIFY longDescriptionChanged)
 	Q_PROPERTY(QString title READ title NOTIFY titleChanged)
 	Q_PROPERTY(bool liked READ liked NOTIFY likedChanged)
+	Q_PROPERTY(QString categoryName READ categoryName NOTIFY categoryNameChanged)
 
 	void parseRadioStationsJson(QJsonArray& jsonArray);
 	void parseRadioGenresJson(QJsonArray& jsonArray);
@@ -73,6 +74,10 @@ public:
 	RadioStation* getCurrentRadioStation() const;
 	void setCurrentRadioStation(RadioStation* currentRadioStation);
 	void setLastPlayedStation();
+	QString categoryName() const;
+
+	bool getQuerryReachability() const;
+	void setQuerryReachability(bool querryReachability);
 
 public slots:
 	void setStationName(QString stationName);
@@ -88,6 +93,7 @@ public slots:
 	void setLiked(bool liked);
 	void stationReachable(QString urlString, bool reachable);
 	void querryReachability();
+	void setCategoryName(QString categoryName);
 
 signals:
 	void stationNameChanged(QString stationName);
@@ -98,6 +104,7 @@ signals:
 	void titleChanged(QString title);
 	void likedChanged(bool liked);
 	void radioStationsChanged();
+	void categoryNameChanged(QString categoryName);
 
 protected:
 	QMap<QString, RadioStation*> m_radioStations;
@@ -111,11 +118,14 @@ protected:
 	LFD::AudioMedia* m_currentAudioMedia;
 	QString m_title;
 	bool m_liked;
+	QString m_categoryName;
+	bool m_querryReachability;
 
-
+	void markAllStationsForDeletion();
+	void deleteMarkedStations();
 
 private:
-	RadioStationManager(QObject* parent = 0);
+	RadioStationManager(QObject* parent = nullptr);
 	RadioStationManager(RadioStationManager const&);
 	void operator =(RadioStationManager const&);
 };

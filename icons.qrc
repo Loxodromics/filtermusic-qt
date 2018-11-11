@@ -14,5 +14,10 @@
         <file>resources/images/filtermusic-logo-medium.png</file>
         <file>resources/icons/disconnected.png</file>
         <file>resources/images/background.jpg</file>
+        <file>resources/icons/chevron_left.png</file>
+        <file>resources/icons/chevron_right.png</file>
+        <file>resources/icons/chevron_up.png</file>
+        <file>resources/icons/info.png</file>
+        <file>resources/icons/loading.png</file>
     </qresource>
 </RCC>

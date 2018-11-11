@@ -7,7 +7,7 @@ Item {
     Text {
         id: noRecents
         color: UI.PRIMARY_TEXT_COLOR
-        font.family: "Avenir"
+        font.family: UI.FONT_NAME
         font.pointSize: UI.TEXT_SIZE_BIG
         horizontalAlignment: Text.AlignHCenter
         wrapMode: Text.WordWrap

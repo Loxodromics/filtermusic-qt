@@ -1,7 +1,7 @@
 import QtQuick 2.7
 import Lfd 0.1
 
-Image {
+Item {
     id: root
 
     property string playIconSource: "qrc:/resources/icons/button_play.png"
@@ -10,8 +10,16 @@ Image {
 
     signal clicked
 
-    fillMode: Image.PreserveAspectFit
-    source: playIconSource
+    width: height
+
+    Image {
+        id: playImage
+
+        fillMode: Image.PreserveAspectFit
+        source: playIconSource
+        anchors.fill: parent
+        visible: !connectingAnimation.running
+    }
 
     MouseArea {
         id: mouseArea
@@ -21,7 +29,7 @@ Image {
         onClicked: {
             root.clicked()
 
-            console.log("state: " + state)
+//            console.log("state: " + state)
 
 //            if (state === "" ) {
 //                state = "playing"
@@ -34,26 +42,37 @@ Image {
         }
     }
 
+    Image {
+        id: connectingIndicator
+        source: "qrc:/resources/icons/loading.png"
+        fillMode: Image.PreserveAspectFit
+        anchors.fill: parent
+        visible: connectingAnimation.running
+    }
+
     Connections {
         target: AudioPlayer
 
         onPlayingStateChanged: {
-            console.log("onPlayingStateChanged: " + playingState)
+//            console.log("onPlayingStateChanged: " + playingState)
 
             if (playingState === LfdAudioPlayer.Playing) {
-                root.source = pauseIconSource
-                pulseAnimation.stop()
+                playImage.source = pauseIconSource
+                connectingAnimation.stop()
+                GTracker.sendEvent("Playing", "pause")
             }
             else if ( (playingState === LfdAudioPlayer.Paused) ||
                       (playingState === LfdAudioPlayer.NotConnected) ||
                       (playingState === LfdAudioPlayer.FailedPlaying)) {
-                root.source = playIconSource
-                pulseAnimation.stop()
+                playImage.source = playIconSource
+                connectingAnimation.stop()
+                GTracker.sendEvent("Playing", "play")
+                GTracker.sendEvent("Station", RadioStationManager.stationName)
             }
             else if ( (playingState === LfdAudioPlayer.Connecting) ||
                         (playingState === LfdAudioPlayer.Connecting) ) {
-                root.source = playIconSource
-                pulseAnimation.restart()
+                playImage.source = playIconSource
+                connectingAnimation.restart()
             }
         }
     }
@@ -65,7 +84,7 @@ Image {
         loops: Animation.Infinite
 
         PropertyAnimation {
-            target: root
+            target: playImage
             properties: "opacity"
             from: 1.0
             to: 0.0
@@ -74,7 +93,7 @@ Image {
         }
 
         PropertyAnimation {
-            target: root
+            target: playImage
             properties: "opacity"
             from: 0.0
             to: 1.0
@@ -83,30 +102,41 @@ Image {
         }
     }
 
+    RotationAnimator {
+        id: connectingAnimation
+        target: connectingIndicator
+        from: 360
+        to: 0
+        duration: 600
+        running: false
+        loops: Animation.Infinite
+    }
+
     states: [
         State {
             name: ""
             PropertyChanges {
-                target: root
+                target: playImage
                 source: playIconSource
             }
         },
         State {
             name: "playing"
             PropertyChanges {
-                target: root
-                source: root.pauseIconSource
+                target: playImage
+                source: playImage.pauseIconSource
             }
 
             PropertyChanges {
-                target: root
+                target: playImage
                 visible: false
             }
+
         }/* TODO,
         State {
             name: "connecting"
             PropertyChanges {
-                target: root
+                target: playImage
                 source: highlightIconSource
             }
         }*/

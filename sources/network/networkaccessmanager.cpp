@@ -42,8 +42,25 @@ QNetworkRequest NetworkAccessManager::getRequest()
 	request.setRawHeader(HEADER_USER_AGENT, CLIENT_DESIGNATION.toUtf8());
 	request.setRawHeader(HEADER_CUSTOM_USER_AGENT, CLIENT_DESIGNATION.toUtf8());
 	request.setRawHeader(HEADER_API_VERSION, QString::number(API_VERSION).toUtf8());
+	request.setRawHeader(HEADER_SETTINGS_VERSION, SETTINGS_VERSION.toUtf8());
 
 	return request;
+}
+
+void NetworkAccessManager::fetchSettings()
+{
+	qDebug() << "NetworkAccessManager::fetchSettings";
+
+	QNetworkRequest request = this->getRequest();
+
+	QUrl url = URL_SETTINGS;
+	QUrlQuery* urlQuery = new QUrlQuery(url);
+	url.setQuery(*urlQuery);
+	request.setUrl(url);
+	QNetworkReply* reply = this->get(request);
+
+	connect( reply, SIGNAL(finished()),
+			 this, SLOT(handleFetchSettings()) );
 }
 
 void NetworkAccessManager::fetchRadioStation()
@@ -52,7 +69,10 @@ void NetworkAccessManager::fetchRadioStation()
 
 	QNetworkRequest request = this->getRequest();
 
-	QUrl url = URL_STATIONS_FEED;
+	const QString urlString = PersistanceManager::getInstance().getSetting( SETTINGS_KEY_URLS + QStringLiteral("/") + SETTINGS_KEY_URLS_STATIONS_FEED,
+																			SETTINGS_VALUE_URLS_STATIONS_FEED );
+
+	QUrl url(urlString);
 	QUrlQuery* urlQuery = new QUrlQuery(url);
 	url.setQuery(*urlQuery);
 	request.setUrl(url);
@@ -68,7 +88,10 @@ void NetworkAccessManager::fetchRadioGenres()
 
 	QNetworkRequest request = this->getRequest();
 
-	QUrl url = URL_GENRES_FEED;
+	const QString urlString = PersistanceManager::getInstance().getSetting( SETTINGS_KEY_URLS + QStringLiteral("/") + SETTINGS_KEY_URLS_CATEGORIES_FEED,
+																			SETTINGS_VALUE_URLS_CATEGORIES_FEED );
+
+	QUrl url(urlString);
 	QUrlQuery* urlQuery = new QUrlQuery(url);
 	url.setQuery(*urlQuery);
 	request.setUrl(url);
@@ -178,6 +201,41 @@ void NetworkAccessManager::pingUrl( const QString urlString )
 
 	addressPinger->start(QThread::LowPriority);
 
+}
+
+void NetworkAccessManager::handleFetchSettings()
+{
+	QNetworkReply* reply = (QNetworkReply*)sender();
+
+	disconnect( reply, SIGNAL(finished()),
+				this, SLOT(handleFetchSettings()) );
+
+	if ( reply->error() == QNetworkReply::NoError )
+	{
+		QString replyString = QString(reply->readAll() );
+
+		qDebug() << "handleFetchSettings: success:\n";// << replyString;
+
+		QJsonParseError* error = new QJsonParseError();
+		QJsonDocument jsonDocument = QJsonDocument::fromJson(replyString.toUtf8(), error);
+
+		if ( error->error != QJsonParseError::NoError )
+		{
+			qDebug() << "QJsonParseError error in handleFetchSettings: " << error->errorString();
+		}
+
+		PersistanceManager::getInstance().parseSettings(jsonDocument);
+	}
+	else
+	{
+		qDebug() << "handleFetchSettings: failed";
+		qDebug() << "handleFetchSettings error: " << reply->errorString();
+		qDebug() << "handleFetchSettings error message: " << reply->readAll();
+	}
+
+	PersistanceManager::getInstance().signalCategoriesChanged();
+
+	reply->deleteLater();
 }
 
 void NetworkAccessManager::handleAddressPinger_old(QString urlString, bool reached)

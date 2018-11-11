@@ -35,12 +35,14 @@ HEADERS += \
     sources/network/addresspinger.h
 
 include(thirdparty/LFDMobileAudioPlayer/LfdMobileAudioPlayer.pri)
+include(thirdparty/qt-google-analytics/qt-google-analytics.pri)
 
 RESOURCES += qml.qrc \
     icons.qrc
 
 unix:mac {
     QMAKE_CXXFLAGS += -fobjc-arc
+    QMAKE_INFO_PLIST = platforms/mac/Info.plist
 
     deployment.files += \
         resources/cacheddata.sq3
@@ -79,6 +81,19 @@ android {
     deployment.path = /assets/res
     INSTALLS += deployment
     message("Androd Resources" $$deployment.files)
+
+#    uploadCrashlytics.depends += all
+
+    # Upload crashlytics symbols
+    message($$OUT_PWD)
+    uploadCrashlytics.commands += $$OUT_PWD/android-build/gradlew crashlyticsUploadSymbolsRelease
+#    uploadCrashlytics.commands += && ping quatur.net
+
+#    QMAKE_EXTRA_TARGETS += uploadCrashlytics
+#    POST_TARGETDEPS += uploadCrashlytics
+
+#    QMAKE_POST_LINK += $$uploadCrashlytics.commands #$$quote(ping quatur.net) # "heelo" $$ANDROID_PACKAGE_SOURCE_DIR/gradlew crashlyticsUploadSymbolsRelease)
+#    message("QMAKE_POST_LINK: " $$QMAKE_POST_LINK)
 
 } #android
 

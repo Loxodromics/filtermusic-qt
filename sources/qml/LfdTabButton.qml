@@ -13,11 +13,13 @@ TabButton {
         color: !control.checked ? UI.TABBAR_BUTTON_TEXT_COLOR_NORMAL : control.down ? UI.TABBAR_BUTTON_TEXT_COLOR_DOWN : UI.TABBAR_BUTTON_TEXT_COLOR_CHECKED
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
+        fontSizeMode: Text.Fit
+        minimumPointSize: 8
     }
 
     background: Rectangle {
         id: backgroundRectangle
-        implicitHeight: 40
+        implicitHeight: UI.UNIT_HEIGHT
 
         color: control.down ? UI.TABBAR_BUTTON_BACKGROUND_DOWN : "transparent"
 

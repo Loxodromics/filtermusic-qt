@@ -10,6 +10,7 @@
 
 #include <QObject>
 #include <QtSql>
+#include <QJsonDocument>
 
 namespace filtermusic {
 
@@ -27,6 +28,9 @@ public:
 		return instance;
 	}
 
+	Q_PROPERTY(bool isDeactived READ isDeactived NOTIFY isDeactivedChanged)
+
+	void parseSettings(QJsonDocument& settingsJson);
 	QSqlError initFromLocalDb();
 	QSqlError writeVersionNumber();
 	void checkDbVersion();
@@ -37,14 +41,18 @@ public:
 	const QString getSetting(const QString key, const QString defaultValue = QStringLiteral(""));
 	Q_INVOKABLE const QString getString(const QString key, const QString viewName, const QString defaultValue);
 
+	bool isDeactived() const;
+
 signals:
 	void radioStationsChanged();
 	void categoriesChanged();
 	void favoritesChanged();
 	void rectentChanged();
+	void isDeactivedChanged(bool isDeactived);
 
 public slots:
 	void saveToLocalDb();
+	void setIsDeactived(bool isDeactived);
 
 protected:
 	/// save
@@ -65,11 +73,12 @@ protected:
 
 private:
 //	PersistanceManager() {}
-	PersistanceManager(QObject* parent = 0);
+	PersistanceManager(QObject* parent = nullptr);
 
 	PersistanceManager(PersistanceManager const&);
 	void operator =(PersistanceManager const&);
 
+	bool m_isDeactived;
 };
 
 } /// namespace filtermusic

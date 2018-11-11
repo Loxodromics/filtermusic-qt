@@ -1,4 +1,5 @@
 import QtQuick 2.7
+import "qrc:/sources/javascript/UiConstants.js" as UI
 
 Component {
     id: categoryDelegate
@@ -12,6 +13,8 @@ Component {
             id: categoryText
 
             text: name
+            font.family: UI.FONT_NAME
+            font.pointSize: UI.TEXT_SIZE_NORMAL
         }
 
         MouseArea {

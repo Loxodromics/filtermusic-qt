@@ -8,11 +8,11 @@
 #include "radiostationmanager.h"
 #include "sources/network/networkaccessmanager.h"
 #include "sources/commons/constants.h"
+#include <QDebug>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QTimer>
 #include <limits.h>
-#include <QDebug>
 
 namespace filtermusic {
 
@@ -39,6 +39,8 @@ void RadioStationManager::parseRadioStationsJson(QJsonArray& jsonArray)
 
 	QJsonArray::iterator it;
 
+	this->markAllStationsForDeletion();
+
 	for ( it = jsonArray.begin(); it != jsonArray.end(); it++ )
 	{
 		if ( (*it).isObject() )
@@ -56,6 +58,8 @@ void RadioStationManager::parseRadioStationsJson(QJsonArray& jsonArray)
 			}
 		}
 	}
+
+	this->deleteMarkedStations();
 }
 
 void RadioStationManager::parseRadioGenresJson(QJsonArray& jsonArray)
@@ -216,7 +220,17 @@ void RadioStationManager::setCurrentCategory(const qint32& currentCategory)
 	this->m_currentCategory = currentCategory;
 	emit radioStationsChanged();
 //	QTimer::singleShot(100, this, SLOT(querryReachability()));
-	this->querryReachability();
+	if ( this->getQuerryReachability() )
+		this->querryReachability();
+
+	if ( this->m_radioGenres.contains(currentCategory) )
+	{
+		this->setCategoryName( this->m_radioGenres.value(currentCategory)->name() );
+	}
+	else
+	{
+		this->setCategoryName( QStringLiteral("") );
+	}
 }
 
 void RadioStationManager::setStation(const QString uid)
@@ -410,12 +424,52 @@ void RadioStationManager::querryReachability()
 			if ( !station->reachableQueried().isValid() ||
 				  station->reachableQueried().secsTo( QDateTime::currentDateTimeUtc() ) > QUERY_TIME_REACHABILITY)
 			{
-				qDebug() << "RadioStationManager::pingUrl";
+//				qDebug() << "RadioStationManager::pingUrl";
 				NetworkAccessManager::getInstance().pingUrl(station->url().toString());
 			}
 		}
 	}
-	qDebug() << "RadioStationManager::querryReachability done";
+	//	qDebug() << "RadioStationManager::querryReachability done";
+}
+
+void RadioStationManager::setCategoryName(QString categoryName)
+{
+	if (this->m_categoryName == categoryName)
+		return;
+
+	this->m_categoryName = categoryName;
+	emit categoryNameChanged(this->m_categoryName);
+}
+
+bool RadioStationManager::getQuerryReachability() const
+{
+	return this->m_querryReachability;
+}
+
+void RadioStationManager::setQuerryReachability(bool querryReachability)
+{
+	this->m_querryReachability = querryReachability;
+}
+
+void RadioStationManager::markAllStationsForDeletion()
+{
+	for ( RadioStation* station : this->m_radioStations )
+	{
+		station->setMarkedForDeletion(true);
+	}
+}
+
+void RadioStationManager::deleteMarkedStations()
+{
+	for ( auto iter = this->m_radioStations.begin();
+		  iter != this->m_radioStations.end();
+		  iter++ )
+	{
+		if ( (*iter)->markedForDeletion() )
+		{
+			iter = this->m_radioStations.erase(iter);
+		}
+	}
 }
 
 void RadioStationManager::updateRadioStation(RadioStation* radioStation)
@@ -456,6 +510,11 @@ void RadioStationManager::setLastPlayedStation()
 	}
 }
 
+QString RadioStationManager::categoryName() const
+{
+	return this->m_categoryName;
+}
+
 bool RadioStationManager::liked() const
 {
 	return this->m_liked;
@@ -465,6 +524,7 @@ void RadioStationManager::insertRadioStation(RadioStation* radioStation)
 {
 //	qDebug() << "RadioStationManager::insertRadioStation" << radioStation->name() << radioStation->lastPlayed().toString(Qt::TextDate);
 	this->m_radioStations.insert(radioStation->uid(), radioStation);
+	radioStation->setMarkedForDeletion(false);
 //	qDebug() << radioStation->toString();
 }
 

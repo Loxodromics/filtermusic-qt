@@ -5,23 +5,55 @@ import "qrc:/sources/javascript/UiConstants.js" as UI
 Item {
     id: root
     property alias stationModel: listView.model
+    property bool showCategory: false
 
     ListView {
         id: listView
 
         anchors.fill: parent
 
-//        model: radioStationModel
         delegate: radioStationsDelegate
+
+        header: Rectangle {
+            id: categoryHeader
+
+            height: showCategory ? UI.UNIT_HEIGHT : 0
+            width: listView.width
+            visible: showCategory
+            color: UI.BACKGROUND_COLOR_ALTERNATIVE
+
+            Text {
+                id: categoryHeaderText
+
+                color: UI.PRIMARY_TEXT_COLOR
+                font.pointSize: UI.TEXT_SIZE_BIG
+                font.family: UI.FONT_NAME
+                text: RadioStationManager.categoryName
+                anchors.left: parent.left
+                anchors.leftMargin: UI.PADDING_NORMAL
+                anchors.verticalCenter: parent.verticalCenter
+            }
+
+            MouseArea {
+                id: categoryHeaderMouseArea
+
+                anchors.fill: parent
+
+                onClicked: {
+                    stackView.pop()
+                }
+            }
+        }
+
 
         Component {
             id: radioStationsDelegate
 
             Rectangle {
                 id: categoryDelegateRoot
-                color: /*index % 2 ? "red" : "green"*/ UI.TABLE_CELL_BACKGROUND_COLOR
+                color: UI.TABLE_CELL_BACKGROUND_COLOR
                 width: parent.width
-                height: Math.max(layout.height + seperator.height, stationIcon.height + UI.PADDING_NORMAL)
+                height: UI.UNIT_HEIGHT //Math.max(layout.height + seperator.height + UI.PADDING_SMALL, stationIcon.height + UI.PADDING_NORMAL)
 
                 Rectangle {
                     id: flashRectangle
@@ -59,21 +91,48 @@ Item {
 
                         text: name
                         color: UI.PRIMARY_TEXT_COLOR
-                        font.pointSize: UI.TABLE_TEXT_SIZE
-                        textFormat: Text.StyledText
+                        font.pointSize: UI.TEXT_SIZE_BIG
+                        font.family: UI.FONT_NAME
                     }
-
+/*
                     Text {
                         id: stationDescription
 
                         text: longDescription
                         color: UI.SUB_TEXT_COLOR
                         font.pointSize: UI.SUB_TEXT_SIZE
+                        font.family: UI.FONT_NAME
                         wrapMode: Text.WordWrap
-                        textFormat: Text.StyledText
                         Layout.maximumWidth: layout.width
-                    }
+                    }*/
                 } /// ColumnLayout
+
+                Image {
+                    id: infoButton
+                    source: "qrc:/resources/icons/info.png"
+
+                    width: height
+                    anchors.right: parent.right
+                    anchors.margins: UI.PADDING_INFO_ICON
+                    anchors.top: parent.top
+                    anchors.bottom: parent.bottom
+
+                    opacity: 0.14
+                }
+
+                MouseArea {
+                    id: infoMouseArea
+
+                    width: height
+                    anchors.right: parent.right
+                    anchors.top: parent.top
+                    anchors.bottom: parent.bottom
+
+                    onClicked: {
+                        RadioStationManager.setStation(uid)
+                        player.maximize()
+                    }
+                }
 
                 Rectangle {
                     id: seperator
@@ -91,11 +150,13 @@ Item {
                 MouseArea {
                     id: categoryMouseArea
 
-                    anchors.fill: parent
+                    anchors.left: parent.left
+                    anchors.right: infoMouseArea.left
+                    anchors.top: parent.top
+                    anchors.bottom: parent.bottom
 //                    enabled: reachable /// I'm undecided about this
 
                     onClicked: {
-                        console.log("onClicked")
                         beatAnimation.restart()
                         AudioPlayer.pause()
                         RadioStationManager.setStation(uid)

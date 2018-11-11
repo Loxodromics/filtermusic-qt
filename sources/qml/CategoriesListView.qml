@@ -27,21 +27,16 @@ ListView {
             ColumnLayout {
                 id: layout
                 width: parent.width - x
+                height: UI.UNIT_HEIGHT
                 x: UI.PADDING_NORMAL
+
                 Text {
                     id: categoryName
 
-                    text: name
+                    text: name + " (" + numberOfStations + ")"
                     color: UI.PRIMARY_TEXT_COLOR
-                    font.pointSize: UI.TABLE_TEXT_SIZE
-                }
-
-                Text {
-                    id: categorySubtext
-
-                    text: numberOfStations + PersistanceManager.getString("categorySubtext", "CategoriesListView", " Stations")
-                    color: UI.SUB_TEXT_COLOR
-                    font.pointSize: UI.SUB_TEXT_SIZE
+                    font.pointSize: UI.TEXT_SIZE_BIG
+                    font.family: UI.FONT_NAME
                 }
 
                 Rectangle {
@@ -52,14 +47,15 @@ ListView {
                 }
             } /// ColumnLayout
 
-            Text {
+            Image {
                 id: rightChevron
-                text: "›"
-                color: UI.PRIMARY_TEXT_COLOR
-                font.pointSize: UI.TEXT_SIZE_CHEVRON
+                fillMode: Image.PreserveAspectFit
+                source: "qrc:/resources/icons/chevron_right.png"
                 anchors.right: parent.right
-                anchors.rightMargin: UI.PADDING_NORMAL
-                anchors.verticalCenter: parent.verticalCenter
+                anchors.margins: UI.PADDING_NORMAL
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                width: height
             }
 
             MouseArea {
@@ -71,6 +67,7 @@ ListView {
                     console.log("onClicked")
                     beatAnimation.restart()
                     RadioStationManager.setCurrentCategory(category)
+                    GTracker.sendEvent("UX", "Category", name)
                     stackView.push(stationsListView)
                 }
             }

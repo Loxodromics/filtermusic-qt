@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
-<manifest package="net.quatur.filtermusicQt" xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="1.2.1" android:versionCode="121" android:installLocation="auto">
+<manifest package="filtermusic.net" xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="1.8.6" android:versionCode="186" android:installLocation="auto">
     <application android:icon="@drawable/icon" android:name="org.qtproject.qt5.android.bindings.QtApplication" android:label="@string/app_name">
-        <activity android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|locale|fontScale|keyboard|keyboardHidden|navigation" android:name="net.quatur.filtermusic.MainActivity" android:label="filtermusic" android:screenOrientation="unspecified">
+        <activity android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|locale|fontScale|keyboard|keyboardHidden|navigation" android:name="net.quatur.filtermusic.MainActivity" android:label="filtermusic" android:screenOrientation="unspecified" android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -22,9 +22,9 @@
             <meta-data android:name="android.app.load_local_jars" android:value="-- %%INSERT_LOCAL_JARS%% --"/>
             <meta-data android:name="android.app.static_init_classes" android:value="-- %%INSERT_INIT_CLASSES%% --"/>
             <!--  Messages maps -->
-            <meta-data android:value="@string/ministro_not_found_msg" android:name="android.app.ministro_not_found_msg"/>
+<!--            <meta-data android:value="@string/ministro_not_found_msg" android:name="android.app.ministro_not_found_msg"/>
             <meta-data android:value="@string/ministro_needed_msg" android:name="android.app.ministro_needed_msg"/>
-            <meta-data android:value="@string/fatal_error_msg" android:name="android.app.fatal_error_msg"/>
+            <meta-data android:value="@string/fatal_error_msg" android:name="android.app.fatal_error_msg"/> -->
             <!--  Messages maps -->
             <!-- Splash screen -->
             <!--
@@ -51,7 +51,7 @@
             <!-- Background running -->
         </service>
     </application>
-    <uses-sdk android:minSdkVersion="16"/>
+    <uses-sdk android:minSdkVersion="16" android:targetSdkVersion="26"/>
     <supports-screens android:largeScreens="true" android:normalScreens="true" android:anyDensity="true" android:smallScreens="true"/>
     <!-- %%INSERT_PERMISSIONS -->
     <uses-permission android:name="android.permission.WAKE_LOCK"/>

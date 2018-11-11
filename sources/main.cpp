@@ -8,14 +8,16 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
-#include "sources/data/radiostation.h"
-#include "sources/network/networkaccessmanager.h"
 #include "sources/commons/constants.h"
 #include "sources/data/persistancemanager.h"
+#include "sources/data/radiostation.h"
+#include "sources/data/radiostationmanager.h"
 #include "sources/models/radiogenremodel.h"
 #include "sources/models/radiostationmodel.h"
-#include "sources/data/radiostationmanager.h"
+#include "sources/network/networkaccessmanager.h"
 #include "thirdparty/LFDMobileAudioPlayer/src/lfdaudioplayer.h"
+#include "thirdparty/LFDMobileAudioPlayer/src/genericQt/genericqtaudioplayer.h"
+#include "thirdparty/qt-google-analytics/ganalytics.h"
 
 #ifdef Q_OS_IOS
 #include "thirdparty/LFDMobileAudioPlayer/src/ios/iosaudioplayer.h"
@@ -24,7 +26,7 @@
 #ifdef Q_OS_ANDROID
 #include <jni.h>
 #include "thirdparty/LFDMobileAudioPlayer/src/android/androidaudioplayer.h"
-LFD::AndroidAudioPlayer* audioPlayer;
+LFD::AndroidAudioPlayer* audioPlayer = nullptr;
 #endif
 
 #ifdef Q_OS_ANDROID
@@ -35,7 +37,8 @@ LFD::AndroidAudioPlayer* audioPlayer;
 void setFocus(JNIEnv */*env*/, jobject /*obj*/, jint n)
 {
 	qDebug() << "setFocus" << n;
-	audioPlayer->setFocus(n);
+	if ( audioPlayer != nullptr)
+		audioPlayer->setFocus(n);
 }
 
 void setTitle(JNIEnv* env, jobject, jstring title)
@@ -43,7 +46,8 @@ void setTitle(JNIEnv* env, jobject, jstring title)
 	const char* nativeString = env->GetStringUTFChars(title, 0);
 
 	qDebug() << "setTitle:" << QString(nativeString);
-	audioPlayer->setTitle( QString(nativeString) );
+	if ( audioPlayer != nullptr)
+		audioPlayer->setTitle( QString(nativeString) );
 }
 
 static JNINativeMethod methods[] = {
@@ -160,11 +164,15 @@ int main(int argc, char *argv[])
 	QTime time = QTime::currentTime();
 	qsrand((uint)time.msec());
 
+	GAnalytics tracker(filtermusic::GOOGLE_ANALYTICS_ID);
+	tracker.startSession();
+
 	/// for Android back button
 	bool isAndroid = false;
 
 	filtermusic::PersistanceManager::getInstance().setResourcePath( determineResourcePath( &engine ) );
 	filtermusic::PersistanceManager::getInstance().loadLocalSettings();
+	filtermusic::NetworkAccessManager::getInstance().fetchSettings();
 
 	engine.rootContext()->setContextProperty( QStringLiteral("NetworkAccessManager"),
 											  filtermusic::NetworkAccessManager::instancePointer() );
@@ -174,6 +182,12 @@ int main(int argc, char *argv[])
 
 	engine.rootContext()->setContextProperty( QStringLiteral("PersistanceManager"),
 											  &filtermusic::PersistanceManager::getInstance() );
+
+	engine.rootContext()->setContextProperty( QStringLiteral("GTracker"),
+											  &tracker );
+
+	engine.rootContext()->setContextProperty(QStringLiteral("Constants"),
+											 new filtermusic::QmlConstants(&app));
 
 	filtermusic::RadioGenreModel radioGenreModel;
 	engine.rootContext()->setContextProperty(QStringLiteral("radioGenreModel"),
@@ -243,7 +257,7 @@ int main(int argc, char *argv[])
 #endif ///Q_OS_ANDROID
 
 #ifdef Q_OS_MACOS
-	LFD::AudioPlayer audioPlayer;
+    LFD::GenericQtAudioPlayer audioPlayer;
 	QObject::connect( &filtermusic::RadioStationManager::getInstance(), SIGNAL(currentAudioMediaChanged(LFD::AudioMedia*) ),
 					  &audioPlayer, SLOT(setMedia(LFD::AudioMedia*)) );
 	QObject::connect( &audioPlayer, SIGNAL(playingChanged(bool)),

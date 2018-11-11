@@ -23,7 +23,8 @@ RadioStation::RadioStation(QObject* parent, QString name, QString longDescriptio
 	  m_liked(liked),
 	  m_lastPlayed(lastPlayed),
 	  m_reachable(true),
-	  m_reachableQueried()
+	  m_reachableQueried(),
+	  m_markedForDeletion(false)
 {
 
 }
@@ -134,6 +135,16 @@ const QDateTime RadioStation::reachableQueried() const
 void RadioStation::setReachableQueried(const QDateTime reachableQueried)
 {
 	this->m_reachableQueried = reachableQueried;
+}
+
+bool RadioStation::markedForDeletion() const
+{
+	return m_markedForDeletion;
+}
+
+void RadioStation::setMarkedForDeletion(bool markedForDeletion)
+{
+	m_markedForDeletion = markedForDeletion;
 }
 
 bool RadioStation::liked() const
